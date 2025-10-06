@@ -21,7 +21,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const usuario = { nombre: "Karith", rol: "admin" as Rol };
+  const usuario = { nombre: "Karith", rol: "enfermeria" as Rol };
   return (
     <html lang="es" className={poppins.variable}>
       <body className="flex min-h-screen">
