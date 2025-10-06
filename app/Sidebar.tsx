@@ -23,8 +23,8 @@ const menuByRol: Record<
         {
             name: "PACIENTES",
             children: [
-                { name: "Lista de Pacientes", path: "/pacientes/lista", icon: <ClipboardList size={16} /> },
-                { name: "Nuevo Paciente", path: "/pacientes/nuevo", icon: <UserPlus size={16} /> },
+                { name: "Lista de Pacientes", path: "/nurse/patients/patientsList", icon: <ClipboardList size={16} /> },
+                { name: "Nuevo Paciente", path: "/nurse/patients/registerPatient", icon: <UserPlus size={16} /> },
             ],
         },
         { name: "REGISTRO CLÍNICO", path: "/registro" },
