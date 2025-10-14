@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import Sidebar from "./Sidebar";
+import ClientLayout from "./clientLayout";
 
 const poppins = Poppins({
   variable: "--font-Poppins-sans",
   subsets: ["latin"],
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
-
-type Rol = "admin" | "medico" | "enfermeria";
 
 export const metadata: Metadata = {
   title: "TrIAge Intelligent",
@@ -21,14 +19,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const usuario = { nombre: "Karith", rol: "enfermeria" as Rol };
   return (
-    <html lang="es" className={poppins.variable}>
-      <body className="flex min-h-screen">
-        {/* Sidebar fija */}
-        <Sidebar rol={usuario.rol} />
-        {/* Panel dinámico */}
-        <main className="ml-64 flex-1 p-6 bg-gray-50">{children}</main>
+    <html lang="es">
+      <body className="m-0 p-0 min-h-screen">
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
