@@ -4,18 +4,22 @@ import { useState } from "react";
 import { Button } from "@/components/button";
 import Alert from "@/components/alert";
 import PatientService from "@/app/services/patientService";
+import TriageService from "@/app/services/triageService";
+import { getUser, getUserId } from "@/app/utilities/session";
+import { FaTemperatureArrowUp } from "react-icons/fa6";
 
 export default function SignosVitalesPanel() {
   const [document, setDocument] = useState("");
-  const [nombre, setNombre] = useState("");
-  const [apellido, setApellido] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [id, setId] = useState("");
-  const [sintomas, setSintomas] = useState("");
-  const [presion, setPresion] = useState("");
-  const [frecuenciaCardiaca, setFrecuenciaCardiaca] = useState("");
-  const [frecuenciaRespiratoria, setFrecuenciaRespiratoria] = useState("");
-  const [temperatura, setTemperatura] = useState("");
-  const [saturacion, setSaturacion] = useState("");
+  const [age, setAge] = useState("");
+  const [symptoms, setSymptoms] = useState("");
+  const [bloodPressure, setBloodPressure] = useState("");
+  const [heartRate, setHeartRate] = useState("");
+  const [respiratoryRate, setRespiratoryRate] = useState("");
+  const [temperature, setTemperature] = useState("");
+  const [oxygenSaturation, setOxygenSaturation] = useState("");
   const [patient, setPatient] = useState<any>(null);
   const [alertType, setAlertType] = useState<"success" | "error" | "info">(
     "info"
@@ -31,39 +35,85 @@ export default function SignosVitalesPanel() {
 
     if (result.success === false) {
       setAlertType("error");
-      setAlertMessage(result.message); // Muestra el mensaje del backend si no se encontró
+      setAlertMessage(result.message);
     } else {
       setPatient(result.data);
-      setNombre(result.data.nombre);
-      setApellido(result.data.apellido);
+      setFirstName(result.data.nombre);
+      setLastName(result.data.apellido);
       setId(result.data.id);
+      setAge(result.data.edad);
     }
   };
 
   const handleCancelar = () => {
     setDocument("");
-    setNombre("");
+    setFirstName("");
     setId("");
-    setSintomas("");
-    setPresion("");
-    setFrecuenciaRespiratoria("");
-    setFrecuenciaCardiaca("");
-    setTemperatura("");
-    setSaturacion("");
+    setAge("");
+    setSymptoms("");
+    setBloodPressure("");
+    setRespiratoryRate("");
+    setHeartRate("");
+    setTemperature("");
+    setOxygenSaturation("");
   };
 
-  const handleSiguiente = () => {
-    console.log({
-      document,
-      nombre,
-      id,
-      sintomas,
-      presion,
-      frecuenciaCardiaca,
-      frecuenciaRespiratoria,
-      temperatura,
-      saturacion,
-    });
+  const handleSiguiente = async () => {
+    setAlertType("info");
+    setAlertMessage("");
+
+    if (!id) {
+      setAlertType("error");
+      setAlertMessage("Primero debe consultar un paciente válido");
+      return;
+    }
+    if (
+      !symptoms.trim() ||
+      !bloodPressure.trim() ||
+      !heartRate ||
+      !respiratoryRate ||
+      !temperature ||
+      !oxygenSaturation
+    ) {
+      setAlertType("error");
+      setAlertMessage(
+        "Por favor, complete todos los campos antes de continuar."
+      );
+      return;
+    }
+
+    try {
+      const data = {
+        vitalSigns: {
+          heartRate: Number(heartRate),
+          respiratoryRate: Number(respiratoryRate),
+          bloodPressure: bloodPressure,
+          temperature: Number(temperature),
+          oxygenSaturation: Number(oxygenSaturation),
+        },
+        symptoms: symptoms,
+        idPatient: Number(id),
+        patientAge: Number(age),
+      };
+
+      const nurseId = getUserId();
+
+      const response = await TriageService.registerTriage(data);
+
+      if (response.success === true) {
+        setAlertType("success");
+        setAlertMessage(response.message);
+        handleCancelar();
+      } else {
+        setAlertType("error");
+        setAlertMessage(
+          `${response.message || "Error al registrar los datos"}`
+        );
+      }
+    } catch (error: any) {
+      console.error(error);
+      alert("Error al conectar con el servidor");
+    }
   };
 
   return (
@@ -99,10 +149,17 @@ export default function SignosVitalesPanel() {
             />
           </div>
 
-          {nombre && (
+          {firstName && (
             <div className="bg-purple-100 text-sm rounded-lg p-2 mt-3 text-gray-700">
               <p>
-                <strong>Nombre:</strong> {nombre} {apellido}
+                <strong>Nombre:</strong> {firstName} {lastName}
+              </p>
+            </div>
+          )}
+          {age && (
+            <div className="bg-purple-100 text-sm rounded-lg p-2 mt-3 text-gray-700">
+              <p>
+                <strong>Edad:</strong> {age}
               </p>
             </div>
           )}
@@ -112,15 +169,15 @@ export default function SignosVitalesPanel() {
 
         <h3 className="font-semibold mb-2">
           Registrar Síntomas y Signos Vitales de{" "}
-          {nombre || apellido ? `${nombre} ${apellido}` : " "}
+          {firstName || lastName ? `${firstName} ${lastName}` : " "}
         </h3>
 
         {/* Síntomas */}
         <div className="mb-4">
           <label className="block font-semibold mb-2">Síntomas</label>
           <textarea
-            value={sintomas}
-            onChange={(e) => setSintomas(e.target.value)}
+            value={symptoms}
+            onChange={(e) => setSymptoms(e.target.value)}
             placeholder="Describa los síntomas principales (ej: dolor abdominal, mareo...)"
             className="border rounded-lg w-full p-3 resize-none"
             rows={3}
@@ -135,8 +192,8 @@ export default function SignosVitalesPanel() {
             </label>
             <input
               type="text"
-              value={presion}
-              onChange={(e) => setPresion(e.target.value)}
+              value={bloodPressure}
+              onChange={(e) => setBloodPressure(e.target.value)}
               placeholder="120/80"
               className="border rounded-lg p-2 w-full"
             />
@@ -148,8 +205,8 @@ export default function SignosVitalesPanel() {
             </label>
             <input
               type="number"
-              value={frecuenciaCardiaca}
-              onChange={(e) => setFrecuenciaCardiaca(e.target.value)}
+              value={heartRate}
+              onChange={(e) => setHeartRate(e.target.value)}
               placeholder="80"
               className="border rounded-lg p-2 w-full"
             />
@@ -161,8 +218,8 @@ export default function SignosVitalesPanel() {
             </label>
             <input
               type="number"
-              value={frecuenciaRespiratoria}
-              onChange={(e) => setFrecuenciaRespiratoria(e.target.value)}
+              value={respiratoryRate}
+              onChange={(e) => setRespiratoryRate(e.target.value)}
               placeholder="16"
               className="border rounded-lg p-2 w-full"
             />
@@ -172,8 +229,8 @@ export default function SignosVitalesPanel() {
             <label className="block font-semibold mb-1">Temperatura (°C)</label>
             <input
               type="number"
-              value={temperatura}
-              onChange={(e) => setTemperatura(e.target.value)}
+              value={temperature}
+              onChange={(e) => setTemperature(e.target.value)}
               placeholder="37.0"
               className="border rounded-lg p-2 w-full"
             />
@@ -185,8 +242,8 @@ export default function SignosVitalesPanel() {
             </label>
             <input
               type="number"
-              value={saturacion}
-              onChange={(e) => setSaturacion(e.target.value)}
+              value={oxygenSaturation}
+              onChange={(e) => setOxygenSaturation(e.target.value)}
               placeholder="95"
               className="border rounded-lg p-2 w-full"
             />
