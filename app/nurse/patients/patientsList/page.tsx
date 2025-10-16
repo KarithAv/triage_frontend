@@ -7,6 +7,7 @@ import Table from "@/components/table";
 import PatientService from "@/app/services/patientService";
 
 interface Patient {
+  triageId: number;
   patientId: number;
   identification: string;
   fullName: string;
@@ -58,6 +59,7 @@ export default function PatientsList() {
     { key: "symptoms", label: "Síntomas" },
     { key: "signs", label: "Signos Vitales" },
     { key: "priority", label: "Prioridad" },
+    { key: "actions", label: "Acciones" },
   ];
 
   const tableData = patients.map((patient, index) => ({
@@ -98,6 +100,11 @@ export default function PatientsList() {
       >
         {patient.priorityName}
       </span>
+    ),
+    actions: (
+      <Button className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-1 rounded">
+        Ver más
+      </Button>
     ),
   }));
 
