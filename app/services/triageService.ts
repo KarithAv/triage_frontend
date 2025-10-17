@@ -2,6 +2,7 @@ import axios from "axios";
 import { getUser, getUserId } from "@/app/utilities/session";
 
 const API_URL = "https://localhost:7233/api/Triage";
+const API2_URL = "https://localhost:7233/api/TriageResult";
 
 export default class TriageService {
   static async registerTriage(data: {
@@ -33,13 +34,48 @@ export default class TriageService {
       };
 
       const response = await axios.post(`${API_URL}/register`, payload);
+      const { idTriage, suggestedLevel, confidence, message } = response.data;
+
       return {
         success: true,
         message: "Paciente registrado exitosamente ✅",
-        data: response.data,
+        idTriage,
+        suggestedLevel,
+        confidence,
+        messageApi: message,
       };
     } catch (error: any) {
       console.error("Error al registrar triage:", error);
+      throw error.response?.data || error.message;
+    }
+  }
+
+  static async getAllPriorities() {
+    try {
+      const response = await axios.get(`${API2_URL}/allPriorities`);
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error("No se pudieron obtener las prioridades");
+      }
+    } catch (error: any) {
+      console.error("Error al obtener prioridades:", error);
+      throw error.response?.data || error.message;
+    }
+  }
+
+  static async getTriageSuggestion(triageId: number) {
+    try {
+      const response = await axios.get(`${API2_URL}/priorityInfo/${triageId}`);
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(
+          response.data.message || "No se pudo obtener la sugerencia de IA"
+        );
+      }
+    } catch (error: any) {
+      console.error("Error al obtener sugerencia de IA:", error);
       throw error.response?.data || error.message;
     }
   }
