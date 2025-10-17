@@ -48,7 +48,7 @@ const menuByRol: Record<
         },
       ],
     },
-    { name: "REGISTRO CLÍNICO", path: "/registro" },
+    { name: "REGISTRO CLÍNICO", path: "/nurse/triage/register" },
     { name: "ALERTAS", path: "/alertas" },
   ],
   Medico: [

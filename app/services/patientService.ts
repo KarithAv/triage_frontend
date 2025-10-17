@@ -47,6 +47,7 @@ export default class PatientService {
       // Unir los signos vitales en un solo objeto por paciente
       const patientsArray = response.data.data || [];
       const patients = patientsArray.map((p: any) => ({
+        triageId: p.triageId,
         patientId: p.patientId,
         identification: p.identification,
         fullName: p.fullName,
@@ -65,6 +66,33 @@ export default class PatientService {
     } catch (error) {
       console.error("Error fetching patients:", error);
       throw error;
+    }
+  }
+  static async getPatientByDocument(document: string) {
+    try {
+      const response = await axios.post(
+        `${API_URL}/get-by-document`,
+        { documentIdPt: document },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return {
+          success: false,
+          message:
+            error.response.data?.message || "Error al buscar el paciente.",
+        };
+      }
+      return {
+        success: false,
+        message: "Error de conexión con el servidor.",
+      };
     }
   }
 }
