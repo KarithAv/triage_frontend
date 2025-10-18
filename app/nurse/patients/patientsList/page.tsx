@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import Alert from "@/components/alert";
 import Table from "@/components/table";
+import PatientProfile from "./patientProfile";
 import PatientService from "@/app/services/patientService";
 
 interface Patient {
@@ -25,6 +26,8 @@ interface Patient {
 export default function PatientsList() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [selectedColor, setSelectedColor] = useState<string>("Todos");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"success" | "error" | "info">(
     "info"
@@ -102,7 +105,34 @@ export default function PatientsList() {
       </span>
     ),
     actions: (
-      <Button className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-1 rounded">
+      <Button
+        className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-1 rounded"
+        onClick={async () => {
+          try {
+            const response = await PatientService.getTriagePatient(
+              patient.triageId
+            );
+
+            if (response.success && response.data.length > 0) {
+              const patientId = {
+                ...response.data[0],
+                triageId: patient.triageId,
+              };
+              setSelectedPatient(patientId);
+              setShowModal(true);
+            } else {
+              setAlertMessage(response.message);
+            }
+          } catch (error) {
+            console.error("Error al obtener paciente:", error);
+            setAlertMessage(
+              "Ocurrió un error al cargar la información del paciente."
+            );
+          } finally {
+            setLoading(false);
+          }
+        }}
+      >
         Ver más
       </Button>
     ),
@@ -144,6 +174,13 @@ export default function PatientsList() {
         </div>
       ) : (
         <Table columns={columns} data={tableData} />
+      )}
+      {showModal && (
+        <PatientProfile
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          patient={selectedPatient}
+        />
       )}
     </div>
   );

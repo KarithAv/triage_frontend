@@ -6,7 +6,7 @@ const publicRoutes = ["/"];
 const roleRoutes: Record<string, string[]> = {
   Administrador: ["/administrator", "/users"],
   Medico: ["/medico"],
-  Enfermero: ["/nurse"],
+  Enfermero: ["/nurse", "/patients", "/triage"],
   Paciente: ["/paciente"],
 };
 

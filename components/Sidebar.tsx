@@ -39,7 +39,7 @@ const menuByRol: Record<
         {
           name: "Lista de Pacientes",
           path: "/nurse/patients/patientsList",
-          icon: <Activity size={16} />,
+          icon: <ClipboardList size={16} />,
         },
         {
           name: "Nuevo Paciente",
@@ -54,7 +54,7 @@ const menuByRol: Record<
         {
           name: "Signos Vitales y Sintomas",
           path: "/nurse/triage/register",
-          icon: <ClipboardList size={16} />,
+          icon: <Activity size={16} />,
         },
       ],
     },
