@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import Alert from "@/components/alert";
 import TriageService from "@/app/services/triageService";
-import { useSearchParams } from "next/navigation";
+import { getUserId } from "@/app/utilities/session";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export default function SugerenciaIA() {
   const searchParams = useSearchParams();
   const idTriage = Number(searchParams.get("idTriage")); // obtener id del triage por query
-
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"info" | "error" | "success">(
@@ -27,17 +28,16 @@ export default function SugerenciaIA() {
       try {
         setLoading(true);
 
-        // 🔹 Obtener prioridades
+        //Obtener prioridades
         const prioridadesData = await TriageService.getAllPriorities();
         setPrioridades(prioridadesData);
 
-        // 🔹 Obtener sugerencia de IA
+        //Obtener sugerencia de IA
         if (idTriage) {
           const sugerenciaData =
             await TriageService.getTriageSuggestion(idTriage);
           setSugerencia(sugerenciaData);
 
-          // ✅ Buscar el id de la prioridad sugerida para marcarla automáticamente
           const prioridadEncontrada = prioridadesData.find(
             (p: any) => p.priorityName === sugerenciaData.priorityName
           );
@@ -58,17 +58,45 @@ export default function SugerenciaIA() {
   }, [idTriage]);
 
   const handleConfirmar = async () => {
-    if (!prioridadSeleccionada) {
+    if (prioridadSeleccionada === null) {
       setAlertType("error");
       setAlertMessage("Debe seleccionar una prioridad antes de confirmar.");
       return;
     }
+    try {
+      const nurseId = getUserId();
+      const response = await TriageService.registerTriageResult({
+        TriageId: Number(idTriage),
+        PriorityId: prioridadSeleccionada,
+        NurseId: nurseId,
+        IsFinalPriority: false, // por ahora lo marcamos como falso
+      });
 
-    console.log("ID Triage:", idTriage);
-    console.log("Prioridad seleccionada:", prioridadSeleccionada);
+      if (response.success) {
+        // ✅ Actualiza el estado local con la prioridad seleccionada
+        const prioridadElegida = prioridades.find(
+          (p) => p.priorityId === prioridadSeleccionada
+        );
 
-    setAlertType("success");
-    setAlertMessage("Prioridad confirmada correctamente ✅");
+        if (prioridadElegida) {
+          setSugerencia({
+            suggestedLevel: prioridadElegida.priorityName,
+            confidence: sugerencia?.confidence || 0,
+            message: prioridadElegida.priorityDescription,
+          });
+        }
+
+        setAlertType("success");
+        setAlertMessage("Prioridad registrada correctamente ✅");
+      } else {
+        setAlertType("error");
+        setAlertMessage("Error al registrar la prioridad.");
+      }
+    } catch (error: any) {
+      console.error(error);
+      setAlertType("error");
+      setAlertMessage("Error al conectar con el servidor.");
+    }
   };
 
   if (loading) {

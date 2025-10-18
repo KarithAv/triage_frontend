@@ -79,4 +79,22 @@ export default class TriageService {
       throw error.response?.data || error.message;
     }
   }
+  static async registerTriageResult(data: {
+    TriageId: number;
+    PriorityId: number;
+    NurseId: number;
+    IsFinalPriority: boolean;
+  }) {
+    try {
+      const response = await axios.post(`${API2_URL}/register`, data);
+      return {
+        success: true,
+        message: "Resultado de prioridad registrado correctamente ✅",
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error("Error al registrar el resultado del triage:", error);
+      throw error.response?.data || error.message;
+    }
+  }
 }
