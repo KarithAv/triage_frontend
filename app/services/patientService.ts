@@ -3,6 +3,7 @@ import axios from "axios";
 
 const API_URL = "https://localhost:7233/api/Patient";
 const API2_URL = "https://localhost:7233/api/TriagePatient";
+const API3_URL = "https://localhost:7233/api/TriageResult/getTriagePatient";
 
 export default class PatientService {
   static async createPatient(formData: any) {
@@ -51,7 +52,7 @@ export default class PatientService {
         patientId: p.patientId,
         identification: p.identification,
         fullName: p.fullName,
-        gender: p.gender ? "Masculino" : "Femenino",
+        gender: p.gender,
         age: p.age,
         symptoms: p.symptoms || "-",
         temperature: p.temperature ?? 0,
@@ -87,6 +88,29 @@ export default class PatientService {
           success: false,
           message:
             error.response.data?.message || "Error al buscar el paciente.",
+        };
+      }
+      return {
+        success: false,
+        message: "Error de conexión con el servidor.",
+      };
+    }
+  }
+  static async getTriagePatient(triageId: number) {
+    try {
+      const response = await axios.post(
+        `${API3_URL}`,
+        { triageId },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return {
+          success: false,
+          message:
+            error.response.data?.message ||
+            "Error al cargar la información del paciente.",
         };
       }
       return {

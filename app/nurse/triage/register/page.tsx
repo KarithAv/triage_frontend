@@ -1,12 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import Alert from "@/components/alert";
 import PatientService from "@/app/services/patientService";
 import TriageService from "@/app/services/triageService";
 import { getUser, getUserId } from "@/app/utilities/session";
-import { FaTemperatureArrowUp } from "react-icons/fa6";
 
 export default function SignosVitalesPanel() {
   const [document, setDocument] = useState("");
@@ -25,6 +25,7 @@ export default function SignosVitalesPanel() {
     "info"
   );
   const [alertMessage, setAlertMessage] = useState("");
+  const router = useRouter();
 
   const handleSearch = async () => {
     setAlertType("info");
@@ -103,7 +104,9 @@ export default function SignosVitalesPanel() {
       if (response.success === true) {
         setAlertType("success");
         setAlertMessage(response.message);
-        handleCancelar();
+        setTimeout(() => {
+          router.push(`/nurse/triage/suggestion?idTriage=${response.idTriage}`);
+        }, 1200);
       } else {
         setAlertType("error");
         setAlertMessage(

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Users, UserPlus, ClipboardList, LogOut } from "lucide-react";
+import { Users, UserPlus, ClipboardList, LogOut, Activity } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
 import { getUser } from "../app/utilities/session";
 import { logout } from "../app/utilities/session";
@@ -32,7 +32,7 @@ const menuByRol: Record<
     { name: "CONFIGURACIÓN", path: "/configuracion" },
   ],
   Enfermero: [
-    { name: "INICIO", path: "/inicio" },
+    { name: "INICIO", path: "/nurse" },
     {
       name: "PACIENTES",
       children: [
@@ -48,7 +48,16 @@ const menuByRol: Record<
         },
       ],
     },
-    { name: "REGISTRO CLÍNICO", path: "/nurse/triage/register" },
+    {
+      name: "REGISTRO CLÍNICO",
+      children: [
+        {
+          name: "Signos Vitales y Sintomas",
+          path: "/nurse/triage/register",
+          icon: <Activity size={16} />,
+        },
+      ],
+    },
     { name: "ALERTAS", path: "/alertas" },
   ],
   Medico: [
