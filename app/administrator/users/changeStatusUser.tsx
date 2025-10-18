@@ -18,13 +18,16 @@ export default function ChangeStatusUser({
 }: ChangeStatusUserProps) {
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState<"success" | "error" | "info">("info");
+  const [alertType, setAlertType] = useState<"success" | "error" | "info">(
+    "info"
+  );
 
   const handleToggleStatus = async () => {
     const newState = stateId === 1 ? 0 : 1; // cambiar estado
     const actionText = stateId === 1 ? "deshabilitar" : "habilitar";
 
-    if (!confirm(`¿Estás seguro de que deseas ${actionText} este usuario?`)) return;
+    if (!confirm(`¿Estás seguro de que deseas ${actionText} este usuario?`))
+      return;
 
     setLoading(true);
     try {
@@ -56,10 +59,12 @@ export default function ChangeStatusUser({
       <Button
         onClick={handleToggleStatus}
         disabled={loading}
-        className={`px-3 py-1 rounded text-white text-sm ${stateId === 1
-          ? "bg-red-500 hover:bg-red-600"
-          : "bg-green-500 hover:bg-green-600"
-          }`}
+        className={`flex items-center justify-center min-w-[110px] h-[36px] rounded-md text-sm font-medium text-white transition-all duration-200
+        ${
+          stateId === 1
+            ? "bg-red-500 hover:bg-red-600"
+            : "bg-green-500 hover:bg-green-600"
+        }`}
       >
         {loading
           ? "Procesando..."
@@ -67,7 +72,6 @@ export default function ChangeStatusUser({
             ? "Deshabilitar"
             : "Habilitar"}
       </Button>
-
     </div>
   );
-}  
+}

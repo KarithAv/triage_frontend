@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import Alert from "@/components/alert";
+import Table from "@/components/table";
 import PatientService from "@/app/services/patientService";
 
 interface Patient {
+  triageId: number;
   patientId: number;
   identification: string;
   fullName: string;
@@ -48,26 +50,83 @@ export default function PatientsList() {
     }
   };
 
+  const columns = [
+    { key: "index", label: "#" },
+    { key: "identification", label: "Identificación" },
+    { key: "fullName", label: "Nombre Completo" },
+    { key: "gender", label: "Sexo" },
+    { key: "age", label: "Edad" },
+    { key: "symptoms", label: "Síntomas" },
+    { key: "signs", label: "Signos Vitales" },
+    { key: "priority", label: "Prioridad" },
+    { key: "actions", label: "Acciones" },
+  ];
+
+  const tableData = patients.map((patient, index) => ({
+    index: index + 1,
+    identification: patient.identification,
+    fullName: patient.fullName,
+    gender: patient.gender,
+    age: patient.age,
+    symptoms: patient.symptoms,
+    signs: (
+      <div className="whitespace-pre-line">
+        <strong>T°:</strong> {patient.temperature}°C
+        <br />
+        <strong>FC:</strong> {patient.heartRate} bpm
+        <br />
+        <strong>PA:</strong> {patient.bloodPressure} mmHg
+        <br />
+        <strong>FR:</strong> {patient.respiratoryRate} rpm
+        <br />
+        <strong>SpO₂:</strong> {patient.oxygenSaturation}%
+      </div>
+    ),
+    priority: (
+      <span
+        className={`px-3 py-1 rounded-full text-sm font-semibold ${
+          patient.priorityName === "Rojo"
+            ? "bg-red-100 text-red-700"
+            : patient.priorityName === "Naranja"
+              ? "bg-orange-100 text-orange-700"
+              : patient.priorityName === "Amarillo"
+                ? "bg-yellow-100 text-yellow-700"
+                : patient.priorityName === "Verde"
+                  ? "bg-green-100 text-green-700"
+                  : patient.priorityName === "Azul"
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-gray-100 text-gray-700"
+        }`}
+      >
+        {patient.priorityName}
+      </span>
+    ),
+    actions: (
+      <Button className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-1 rounded">
+        Ver más
+      </Button>
+    ),
+  }));
+
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">Lista de Pacientes</h2>
+    <div className="p-6 max-w-7xl mx-auto">
+      <h2 className="text-3xl font-bold mb-4 text-gray-800">
+        Listado de Pacientes
+      </h2>
 
       <Alert
         message={alertMessage}
         type={alertType}
-        onClose={() => setAlertMessage("info")}
+        onClose={() => setAlertMessage("")}
       />
 
-      {/* Filtro por color */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-5">
         <div>
-          <label className="mr-2 text-sm font-semibold">
-            Filtrar por color:
-          </label>
+          <label className="mr-2 text-sm font-semibold">Filtrar por:</label>
           <select
             value={selectedColor}
             onChange={(e) => setSelectedColor(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2"
+            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
           >
             <option value="Todos">Todos</option>
             <option value="Rojo">Rojo</option>
@@ -79,91 +138,13 @@ export default function PatientsList() {
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-200">
-          <thead>
-            <tr className="bg-gray-100 text-left text-sm font-semibold">
-              <th className="border border-gray-200 px-4 py-2">#</th>
-              <th className="border border-gray-200 px-4 py-2">
-                Identificación
-              </th>
-              <th className="border border-gray-200 px-4 py-2">
-                Nombre Completo
-              </th>
-              <th className="border border-gray-200 px-4 py-2">Sexo</th>
-              <th className="border border-gray-200 px-4 py-2">Edad</th>
-              <th className="border border-gray-200 px-4 py-2">Síntomas</th>
-              <th className="border border-gray-200 px-4 py-2">
-                Signos Vitales
-              </th>
-              <th className="border border-gray-200 px-4 py-2">Prioridad</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={8} className="text-center py-4 text-gray-500">
-                  Cargando pacientes...
-                </td>
-              </tr>
-            ) : patients.length > 0 ? (
-              patients.map((patient, index) => (
-                <tr
-                  key={`${patient.patientId}-${index}`}
-                  className="hover:bg-gray-50 text-sm"
-                >
-                  <td className="border px-4 py-2">{index + 1}</td>
-                  <td className="border px-4 py-2">{patient.identification}</td>
-                  <td className="border px-4 py-2">{patient.fullName}</td>
-                  <td className="border px-4 py-2">{patient.gender}</td>
-                  <td className="border px-4 py-2">{patient.age}</td>
-                  <td className="border px-4 py-2">{patient.symptoms}</td>
-                  <td className="border px-4 py-2 whitespace-pre-line">
-                    <div>
-                      <strong>T°:</strong> {patient.temperature}°C
-                      <br />
-                      <strong>FC:</strong> {patient.heartRate} bpm
-                      <br />
-                      <strong>PA:</strong> {patient.bloodPressure} mmHg
-                      <br />
-                      <strong>FR:</strong> {patient.respiratoryRate} rpm
-                      <br />
-                      <strong>SpO₂:</strong> {patient.oxygenSaturation}%
-                    </div>
-                  </td>
-                  <td
-                    className={`border px-4 py-2 font-semibold text-center ${
-                      patient.priorityName === "Rojo"
-                        ? "text-red-600"
-                        : patient.priorityName === "Naranja"
-                          ? "text-orange-600"
-                          : patient.priorityName === "Amarillo"
-                            ? "text-yellow-500"
-                            : patient.priorityName === "Verde"
-                              ? "text-green-600"
-                              : patient.priorityName === "Azul"
-                                ? "text-blue-600"
-                                : "text-gray-600"
-                    }`}
-                  >
-                    {patient.priorityName}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={8}
-                  className="text-center py-4 text-gray-500 italic"
-                >
-                  No hay pacientes registrados
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {loading ? (
+        <div className="text-center py-6 text-gray-500">
+          Cargando pacientes...
+        </div>
+      ) : (
+        <Table columns={columns} data={tableData} />
+      )}
     </div>
   );
 }
