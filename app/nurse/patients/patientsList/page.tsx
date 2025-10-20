@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import Alert from "@/components/alert";
 import Table from "@/components/table";
+import { Card } from "@/components/card";
 import PatientProfile from "./patientProfile";
 import PatientService from "@/app/services/patientService";
 
@@ -150,31 +151,38 @@ export default function PatientsList() {
         onClose={() => setAlertMessage("")}
       />
 
-      <div className="flex justify-between items-center mb-5">
-        <div>
-          <label className="mr-2 text-sm font-semibold">Filtrar por:</label>
-          <select
-            value={selectedColor}
-            onChange={(e) => setSelectedColor(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
-          >
-            <option value="Todos">Todos</option>
-            <option value="Rojo">Rojo</option>
-            <option value="Naranja">Naranja</option>
-            <option value="Amarillo">Amarillo</option>
-            <option value="Verde">Verde</option>
-            <option value="Azul">Azul</option>
-          </select>
+      <Card className="overflow-hidden p-5">
+        {/* 🔹 Filtros y opciones */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-5 gap-3">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <label className="text-sm font-semibold whitespace-nowrap">
+              Filtrar por:
+            </label>
+            <select
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-auto focus:ring-2 focus:ring-purple-400 outline-none"
+            >
+              <option value="Todos">Todos</option>
+              <option value="Rojo">Rojo</option>
+              <option value="Naranja">Naranja</option>
+              <option value="Amarillo">Amarillo</option>
+              <option value="Verde">Verde</option>
+              <option value="Azul">Azul</option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      {loading ? (
-        <div className="text-center py-6 text-gray-500">
-          Cargando pacientes...
-        </div>
-      ) : (
-        <Table columns={columns} data={tableData} />
-      )}
+        {/* 🔹 Contenido principal: Tabla o carga */}
+        {loading ? (
+          <div className="text-center py-6 text-gray-500">
+            Cargando pacientes...
+          </div>
+        ) : (
+          <Table columns={columns} data={tableData} />
+        )}
+      </Card>
+
       {showModal && (
         <PatientProfile
           isOpen={showModal}

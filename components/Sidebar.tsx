@@ -6,7 +6,7 @@ import { JSX, useEffect, useState } from "react";
 import { getUser } from "../app/utilities/session";
 import { logout } from "../app/utilities/session";
 
-type Rol = "Administrador" | "Medico" | "Enfermero" | "Paciente";
+type Rol = "Administrador" | "Médico" | "Enfermero" | "Paciente";
 
 interface UserData {
   id: number;
@@ -58,11 +58,10 @@ const menuByRol: Record<
         },
       ],
     },
-    { name: "ALERTAS", path: "/alertas" },
   ],
-  Medico: [
-    { name: "LISTA DE PACIENTES", path: "/medico/patients" },
-    { name: "DIAGNÓSTICOS", path: "/medico/diagnosticos" },
+  Médico: [
+    { name: "INICIO", path: "/doctor" },
+    { name: "LISTA DE PACIENTES", path: "/doctor/triagePatientList" },
   ],
   Paciente: [
     { name: "INICIO", path: "/paciente/inicio" },
