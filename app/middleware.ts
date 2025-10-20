@@ -5,7 +5,7 @@ const publicRoutes = ["/"];
 
 const roleRoutes: Record<string, string[]> = {
   Administrador: ["/administrator", "/users"],
-  Medico: ["/medico"],
+  Medico: ["/doctor"],
   Enfermero: ["/nurse", "/patients", "/triage"],
   Paciente: ["/paciente"],
 };
@@ -44,7 +44,7 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/administrator/:path*",
-    "/medico/:path*",
+    "/doctor/:path*",
     "/nurse/:path*",
     "/paciente/:path*",
   ],

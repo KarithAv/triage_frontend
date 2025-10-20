@@ -87,7 +87,6 @@ export default function UsersList() {
     { key: "acciones", label: "Acciones" },
   ];
 
-  // ✅ Adaptar datos para la tabla
   const data = users.map((user) => ({
     fullName: user.fullName,
     identificationUs: user.identificationUs,

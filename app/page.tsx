@@ -35,7 +35,7 @@ export default function LoginPage() {
 
       if (rol.includes("administrador")) router.push("/administrator");
       else if (rol.includes("medico") || rol.includes("médico"))
-        router.push("/medico");
+        router.push("/doctor");
       else router.push("/nurse");
     } catch (err: any) {
       setError(err.message || "Error al iniciar sesión");

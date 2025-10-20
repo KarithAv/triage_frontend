@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { getUser } from "@/app/utilities/session";
 import { FaSpinner } from "react-icons/fa";
 
-type Rol = "Administrador" | "Medico" | "Enfermero" | "Paciente";
+type Rol = "Administrador" | "Médico" | "Enfermero" | "Paciente";
 
 export default function ClientLayout({
   children,
