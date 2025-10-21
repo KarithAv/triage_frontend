@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import Alert from "@/components/alert";
@@ -27,6 +28,7 @@ export default function MedicoPacientesList() {
     "info"
   );
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const loadPatients = async (fullName = "", identification = "") => {
     try {
@@ -43,7 +45,7 @@ export default function MedicoPacientesList() {
         setPatients([]);
         setFilteredPatients([]);
         setAlertMessage(
-          "No hay pacientes registarados actualmente con esos datos."
+          "No hay pacientes registrados actualmente con esos datos."
         );
         setAlertType("info");
       }
@@ -79,6 +81,10 @@ export default function MedicoPacientesList() {
   useEffect(() => {
     handleSearch();
   }, [searchTerm]);
+
+  const handleSeleccionar = (triageId: number) => {
+    router.push(`/doctor/clinicHistory?Triage=${triageId}`);
+  };
 
   const columns = [
     { key: "index", label: "#" },
@@ -121,7 +127,7 @@ export default function MedicoPacientesList() {
     actions: (
       <Button
         className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
-        onClick={() => console.log("Paciente seleccionado:", patient)}
+        onClick={() => handleSeleccionar(patient.triageId)}
       >
         Seleccionar
       </Button>
