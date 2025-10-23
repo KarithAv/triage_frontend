@@ -38,7 +38,7 @@ export default class TriageService {
 
       return {
         success: true,
-        message: "Paciente registrado exitosamente ✅",
+        message: "Paciente registrado exitosamente",
         idTriage,
         suggestedLevel,
         confidence,
@@ -88,8 +88,8 @@ export default class TriageService {
     try {
       const response = await axios.post(`${API2_URL}/register`, data);
       return {
-        success: true,
-        message: "Resultado de prioridad registrado correctamente ✅",
+        success: response.data.success,
+        message: response.data.message,
         data: response.data,
       };
     } catch (error: any) {

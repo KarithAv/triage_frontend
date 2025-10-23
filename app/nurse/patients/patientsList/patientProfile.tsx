@@ -6,7 +6,12 @@ import { useEffect, useState } from "react";
 import TriageService from "@/app/services/triageService";
 import { getUserId } from "@/app/utilities/session";
 
-export default function PatientProfile({ isOpen, onClose, patient }: any) {
+export default function PatientProfile({
+  isOpen,
+  onClose,
+  onRefresh,
+  patient,
+}: any) {
   const [prioridades, setPrioridades] = useState<any[]>([]);
   const [prioridadSeleccionada, setPrioridadSeleccionada] = useState<
     number | null
@@ -63,10 +68,11 @@ export default function PatientProfile({ isOpen, onClose, patient }: any) {
 
       if (response.success) {
         setAlertType("success");
-        setAlertMessage("Prioridad registrada correctamente ✅");
+        setAlertMessage(response.message);
         setTimeout(() => {
           setAlertMessage("");
           onClose();
+          onRefresh();
         }, 1500);
       } else {
         setAlertType("error");

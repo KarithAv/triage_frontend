@@ -7,6 +7,7 @@ import Alert from "@/components/alert";
 import Table from "@/components/table";
 import { Card } from "@/components/card";
 import DoctorService from "@/app/services/doctorService";
+import { getUserId } from "@/app/utilities/session";
 
 interface Patient {
   triageId: number;
@@ -82,8 +83,31 @@ export default function MedicoPacientesList() {
     handleSearch();
   }, [searchTerm]);
 
-  const handleSeleccionar = (triageId: number) => {
-    router.push(`/doctor/clinicHistory?Triage=${triageId}`);
+  const handleSeleccionar = async (triageId: number) => {
+    try {
+      const idMedic = getUserId();
+
+      if (!idMedic) {
+        setAlertType("error");
+        setAlertMessage("No se encontró el ID del médico en la sesión.");
+        return;
+      }
+      const result = await DoctorService.startConsultation(idMedic, triageId);
+
+      if (result.success === true) {
+        setAlertType("success");
+        setAlertMessage(result.message);
+        setTimeout(() => {
+          router.push(`/doctor/clinicHistory?Triage=${triageId}`);
+        }, 1200);
+      } else {
+        setAlertType("error");
+        setAlertMessage(`${result.message || "Error al registrar los datos"}`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error al iniciar la consulta.");
+    }
   };
 
   const columns = [
@@ -106,15 +130,15 @@ export default function MedicoPacientesList() {
     priorityLevel: (
       <span
         className={`px-3 py-1 rounded-full text-sm font-semibold ${
-          patient.color === "rojo"
+          patient.priorityLevel === "Rojo"
             ? "bg-red-100 text-red-700"
-            : patient.color === "naranja"
+            : patient.priorityLevel === "Naranja"
               ? "bg-orange-100 text-orange-700"
-              : patient.color === "amarillo"
+              : patient.priorityLevel === "Amarillo"
                 ? "bg-yellow-100 text-yellow-700"
-                : patient.color === "verde"
+                : patient.priorityLevel === "Verde"
                   ? "bg-green-100 text-green-700"
-                  : patient.color === "azul"
+                  : patient.priorityLevel === "Azul"
                     ? "bg-blue-100 text-blue-700"
                     : "bg-gray-100 text-gray-700"
         }`}

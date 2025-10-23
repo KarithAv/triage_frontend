@@ -85,9 +85,11 @@ export default function SugerenciaIA() {
             message: prioridadElegida.priorityDescription,
           });
         }
-
         setAlertType("success");
-        setAlertMessage("Prioridad registrada correctamente ✅");
+        setAlertMessage(response.message);
+        setTimeout(() => {
+          router.push(`/nurse/patients/patientsList`);
+        }, 1200);
       } else {
         setAlertType("error");
         setAlertMessage("Error al registrar la prioridad.");
