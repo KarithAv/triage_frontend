@@ -187,6 +187,7 @@ export default function PatientsList() {
         <PatientProfile
           isOpen={showModal}
           onClose={() => setShowModal(false)}
+          onRefresh={loadPatients}
           patient={selectedPatient}
         />
       )}
