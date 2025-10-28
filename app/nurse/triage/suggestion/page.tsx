@@ -112,7 +112,7 @@ export default function SugerenciaIA() {
   return (
     <main className="flex items-center justify-center min-h-screen bg-[url('/images/fondo.png')] bg-repeat p-10">
       <div className="bg-white shadow-lg rounded-2xl p-8 w-[500px]">
-        <h2 className="text-3xl font-extrabold text-center mb-6 text-gray-800">
+        <h2 className="text-3xl font-extrabold text-gray-800 text-center mb-6">
           Sugerencia de IA
         </h2>
         {/* Mostrar la prioridad sugerida */}

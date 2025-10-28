@@ -98,6 +98,11 @@ export default function SignosVitalesPanel() {
       };
 
       const nurseId = getUserId();
+      
+      if(!nurseId){
+        setAlertType("success");
+        setAlertMessage("No hay enfermero logueado");
+      }
 
       const response = await TriageService.registerTriage(data);
 
@@ -122,7 +127,7 @@ export default function SignosVitalesPanel() {
   return (
     <main className="flex-1 flex items-center justify-center bg-[url('/images/fondo.png')] bg-repeat p-10">
       <div className="bg-white shadow-lg rounded-2xl p-8 w-[700px]">
-        <h2 className="text-3xl font-extrabold text-center mb-6">
+        <h2 className="text-3xl font-extrabold text-gray-800 text-center mb-6">
           Registro de Signos Vitales
         </h2>
 

@@ -189,7 +189,7 @@ export default function TreatmentPage() {
   return (
     <>
       <Card>
-        <h2 className="text-3xl font-bold mb-4 text-gray-800">
+        <h2 className="text-3xl font-extrabold text-gray-800">
           Registro de Tratamiento
         </h2>
       </Card>

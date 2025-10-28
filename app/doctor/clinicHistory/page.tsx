@@ -25,6 +25,7 @@ export default function ClinicHistoryPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [tableData, setTableData] = useState<any[]>([]);
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   const [columns] = useState([
     { key: "startTime", label: "Hora Inicio" },
@@ -34,40 +35,63 @@ export default function ClinicHistoryPage() {
   ]);
 
   useEffect(() => {
-    if (idTriage) {
-      DoctorService.getTriageDetails(Number(idTriage))
-        .then((res) => {
-          const patientData = res.data;
-          setPatient(patientData);
+    if (!idTriage) return;
 
-          if (patientData?.patientId) {
-            DoctorService.getConsultationHistory(patientData.patientId)
-              .then((historyRes) => {
-                const data = historyRes.data || [];
-                setHistory(data);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-                // Adaptar datos para la tabla
-                setTableData(
-                  data.map((item: any) => ({
-                    startTime: item.startTime || "—",
-                    diagnosisName: item.diagnosisName || "—",
-                    diagnosisObservation: item.diagnosisObservation || "—",
-                    treatmentDescription: item.treatmentDescription || "—",
-                  }))
-                );
-              })
-              .catch((err) => {
-                console.error("Error al cargar historial:", err);
-                setHistory([]);
-                setTableData([]);
-              });
-          }
-        })
-        .catch((err) => {
-          console.error("Error al cargar paciente:", err);
-          setPatient(null);
-        });
-    }
+        const triageRes = await DoctorService.getTriageDetails(
+          Number(idTriage)
+        );
+        const patientData = triageRes.data;
+        setPatient(patientData);
+
+        if (patientData?.patientId) {
+          const historyRes = await DoctorService.getConsultationHistory(
+            patientData.patientId
+          );
+
+          const data = historyRes.data || [];
+          setHistory(data);
+
+          setTableData(
+            data.map((item: any) => {
+              const horaInicio =
+                item.startTime ||
+                item.consultationStartTime ||
+                item.start_date ||
+                item.fechaInicio ||
+                "—";
+              let tratamiento = item.treatmentDescription || "—";
+              if (item.medicationName) {
+                tratamiento += `\n\n💊 Medicamento: ${item.medicationName}`;
+              }
+
+              if (item.examName) {
+                tratamiento += `\n🧪 Examen sugerido: ${item.examName}`;
+              }
+
+              return {
+                startTime: horaInicio,
+                diagnosisName: item.diagnosisName || "—",
+                diagnosisObservation: item.diagnosisObservation || "—",
+                treatmentDescription: tratamiento.trim() || "—",
+              };
+            })
+          );
+        }
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
+        setPatient(null);
+        setHistory([]);
+        setTableData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [idTriage]);
 
   if (!idTriage) {
@@ -84,7 +108,7 @@ export default function ClinicHistoryPage() {
   return (
     <>
       <Card>
-        <h2 className="text-3xl font-bold mb-4 text-gray-800">
+        <h2 className="text-3xl font-extrabold text-gray-800">
           Historia Clínica
         </h2>
       </Card>
@@ -256,11 +280,15 @@ export default function ClinicHistoryPage() {
             <Calendar className="w-5 h-5 text-gray-700" />
             Historial de Consultas Previas
           </h3>
-          {tableData.length > 0 ? (
+          {loading ? (
+            <p className="text-gray-500 italic p-4">
+              Cargando historial del paciente...
+            </p>
+          ) : tableData.length > 0 ? (
             <Table columns={columns} data={tableData} />
           ) : (
             <p className="text-gray-500 italic p-4">
-              No hay consultas previas registradas.
+              Sin consultas previas registradas.
             </p>
           )}
         </div>

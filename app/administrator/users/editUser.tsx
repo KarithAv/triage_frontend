@@ -93,7 +93,7 @@ export default function EditUser({ userId, onClose, onUserUpdated }: EditUserPro
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">Editar Usuario</h2>
+      <h2 className="text-2xl font-extrabold text-gray-800">Editar Usuario</h2>
       <Alert
         message={alertMessage}
         type={alertType}

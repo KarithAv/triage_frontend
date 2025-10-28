@@ -28,8 +28,7 @@ const menuByRol: Record<
   Administrador: [
     { name: "INICIO", path: "/administrator" },
     { name: "GESTIÓN DE USUARIOS", path: "/administrator/users" },
-    { name: "REPORTES Y ESTADÍSTICAS", path: "/reportes" },
-    { name: "CONFIGURACIÓN", path: "/configuracion" },
+    { name: "REPORTES Y ESTADÍSTICAS", path: "/administrator/reports" },
   ],
   Enfermero: [
     { name: "INICIO", path: "/nurse" },
@@ -89,7 +88,7 @@ export default function Sidebar() {
       {/* Header */}
       <div className="purple-bg h-20 flex items-center px-6">
         <img src="/images/Cerebro.png" alt="Logo" className="h-12 mr-3" />
-        <span className="text-white font-bold text-lg">Intelligent TriAge</span>
+        <span className="text-white font-extrabold text-lg">Intelligent TriAge</span>
       </div>
 
       {/* Usuario */}

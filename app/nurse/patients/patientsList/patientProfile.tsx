@@ -96,7 +96,7 @@ export default function PatientProfile({
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-white/40 backdrop-blur-sm">
       <div className="bg-white border border-black rounded-lg shadow-md p-6 w-[500px]">
-        <h3 className="text-2xl font-bold mb-4 text-gray-800">
+        <h3 className="text-2xl font-extrabold text-gray-800">
           Perfil del Paciente
         </h3>
 
