@@ -57,9 +57,10 @@ export default class DiagnosisService {
     }
   }
 
-  static async addDiagnosis(historyId: number, diagnosisId: number) {
+  static async addDiagnosis(consultationId: number, diagnosisId: number) {
     try {
-      const body = { historyId, diagnosisId };
+      const body = { consultationId, diagnosisId };
+
       const response = await axios.post(`${API2_URL}/add-diagnosis`, body);
       return {
         success: true,

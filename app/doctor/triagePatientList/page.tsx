@@ -95,10 +95,21 @@ export default function MedicoPacientesList() {
       const result = await DoctorService.startConsultation(idMedic, triageId);
 
       if (result.success === true) {
+        // Guardar el ID de la consulta
+        if (result.consultationId) {
+          localStorage.setItem(
+            "consultationId",
+            result.consultationId.toString()
+          );
+        }
+
         setAlertType("success");
         setAlertMessage(result.message);
+
         setTimeout(() => {
-          router.push(`/doctor/clinicHistory?Triage=${triageId}`);
+          router.push(
+            `/doctor/clinicHistory?Triage=${triageId}&Consultation=${result.consultationId}`
+          );
         }, 1200);
       } else {
         setAlertType("error");
@@ -123,9 +134,9 @@ export default function MedicoPacientesList() {
 
   const tableData = filteredPatients.map((patient, index) => {
     const isAssigned =
-    patient.medicName &&
-    patient.medicName.trim() !== "" &&
-    patient.medicName.trim().toLowerCase() !== "sin asignar";
+      patient.medicName &&
+      patient.medicName.trim() !== "" &&
+      patient.medicName.trim().toLowerCase() !== "sin asignar";
 
     return {
       index: index + 1,

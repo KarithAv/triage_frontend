@@ -53,14 +53,27 @@ export default class DoctorService {
       const response = await axios.post(
         `https://localhost:7233/api/Consultation/start`,
         {
-          idTriage,
           idMedic,
+          idTriage,
         }
       );
-      return response.data;
-    } catch (error) {
+      console.log("📥 Respuesta API /Consultation/start:", response.data);
+      const data = response.data;
+
+      return {
+        success: data.success || false,
+        message: data.message || "Error al iniciar la consulta.",
+        consultationId: data.consultationId || null,
+      };
+    } catch (error: any) {
       console.error("Error al iniciar la consulta médica:", error);
-      throw error;
+      return {
+        success: false,
+        message:
+          error.response?.data?.message ||
+          "Ocurrió un error al iniciar la consulta.",
+        consultationId: null,
+      };
     }
   }
 }
