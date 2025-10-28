@@ -24,6 +24,7 @@ import Badge from "@/components/badge";
 export default function DiagnosysPage() {
   const params = useSearchParams();
   const idTriage = params.get("Triage");
+  const idConsultation = params.get("Consultation");
   const idDiagnosis = params.get("Diagnosis");
   const [patient, setPatient] = useState<any>(null);
   const [diagnoses, setDiagnoses] = useState<any[]>([]);
@@ -68,25 +69,17 @@ export default function DiagnosysPage() {
       return;
     }
 
+    if (!idConsultation) {
+      setAlertType("error");
+      setAlertMessage("No se encontró el ID de la consulta.");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      // Obtener el historial del paciente
-      const historyResponse = await DiagnosisService.getByDocument(
-        patient.patientDocument
-      );
-      if (!historyResponse.success || !historyResponse.data?.historyId) {
-        setAlertType("error");
-        setAlertMessage("No se pudo obtener el historial del paciente.");
-        setLoading(false);
-        return;
-      }
-
-      const historyId = historyResponse.data.historyId;
-
-      // Asociar el diagnóstico al historial
       const addDiagnosisResponse = await DiagnosisService.addDiagnosis(
-        historyId,
+        Number(idConsultation),
         Number(selectedDiagnosis)
       );
 
@@ -95,7 +88,7 @@ export default function DiagnosysPage() {
         setAlertMessage(addDiagnosisResponse.message);
         setTimeout(() => {
           router.push(
-            `/doctor/treatment?Triage=${idTriage}&Diagnosis=${selectedDiagnosis}`
+            `/doctor/treatment?Triage=${idTriage}&Consultation=${idConsultation}&Diagnosis=${selectedDiagnosis}`
           );
         }, 1500);
       } else {

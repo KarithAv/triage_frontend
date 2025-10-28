@@ -27,6 +27,7 @@ export default function TreatmentPage() {
   const params = useSearchParams();
   const idTriage = params.get("Triage");
   const idDiagnosis = params.get("Diagnosis") || "";
+  const idConsultation = params.get("Consultation");
   const [patient, setPatient] = useState<any>(null);
   const [diagnosisName, setDiagnosisName] = useState<string>("");
   const [diagnosisNotes, setDiagnosisNotes] = useState<string>("");
@@ -129,19 +130,13 @@ export default function TreatmentPage() {
     try {
       setLoading(true);
 
-      // Obtener el historial del paciente
-      const historyResponse = await DiagnosisService.getByDocument(
-        patient.patientDocument
-      );
-
-      if (!historyResponse.success || !historyResponse.data?.historyId) {
+      if (!idConsultation) {
         setAlertType("error");
-        setAlertMessage("No se pudo obtener el historial del paciente.");
+        setAlertMessage("No se encontró el ID de la consulta.");
         setLoading(false);
         return;
       }
 
-      const historyId = historyResponse.data.historyId;
       const selectedExams = exams.filter((e) => e.selected).map((e) => e.id);
       const selectedMeds = medications
         .filter((m) => m.selected)
@@ -149,7 +144,7 @@ export default function TreatmentPage() {
 
       // Crear el payload para la API
       const payload = {
-        idHistory: historyId,
+        consultationId: Number(idConsultation),
         description: treatmentDescription.trim() || "Sin descripción",
         medicationIds: selectedMeds.length ? selectedMeds : [],
         examIds: selectedExams.length ? selectedExams : [],

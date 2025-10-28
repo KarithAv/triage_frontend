@@ -43,7 +43,7 @@ export default class TreatmentService {
     }
   }
   static async registerTreatment(data: {
-    idHistory: number;
+    consultationId: number;
     description: string;
     medicationIds: number[];
     examIds: number[];

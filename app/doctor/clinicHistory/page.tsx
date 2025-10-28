@@ -21,6 +21,7 @@ import Badge from "@/components/badge";
 export default function ClinicHistoryPage() {
   const params = useSearchParams();
   const idTriage = params.get("Triage");
+  const idConsultation = params.get("Consultation");
   const [patient, setPatient] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [tableData, setTableData] = useState<any[]>([]);
@@ -102,7 +103,9 @@ export default function ClinicHistoryPage() {
     );
   }
   const handleContinuar = () => {
-    router.push(`/doctor/diagnosis?Triage=${idTriage}`);
+    router.push(
+      `/doctor/diagnosis?Triage=${idTriage}&Consultation=${idConsultation}`
+    );
   };
 
   return (
