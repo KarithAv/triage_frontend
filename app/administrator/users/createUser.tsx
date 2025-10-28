@@ -65,7 +65,7 @@ export default function CreateUser({ onClose, onUserCreated }: CreateUserProps) 
     return (
 
         <div>
-            <h2 className="text-xl font-semibold mb-4">Crear Nuevo Usuario</h2>
+            <h2 className="text-2xl font-extrabold text-gray-800">Crear Nuevo Usuario</h2>
             <Alert
                 message={alertMessage}
                 type={alertType}

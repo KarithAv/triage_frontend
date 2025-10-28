@@ -68,7 +68,7 @@ export default function RegisterPatientPage() {
 
     return (
         <div className="p-6 max-w-2xl mx-auto">
-            <h2 className="text-2xl font-semibold mb-4">Registrar Nuevo Paciente</h2>
+            <h2 className="text-3xl font-extrabold text-gray-800">Registrar Nuevo Paciente</h2>
 
             <Alert
                 message={alertMessage}

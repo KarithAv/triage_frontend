@@ -10,6 +10,11 @@ export function getUserId() {
   const user = getUser();
   return user ? user.id : null;
 }
+export function getUserName() {
+  const user = getUser();
+  return user ? user.roleName : null;
+}
+
 export function getRoleName() {
   const user = getUser();
   return user ? user.roleName : null;

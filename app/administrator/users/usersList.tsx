@@ -123,7 +123,7 @@ export default function UsersList() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
-        <h2 className="text-3xl font-bold mb-4 text-gray-800">
+        <h2 className="text-3xl font-extrabold text-gray-800">
           Gestión de Usuarios
         </h2>
         <button

@@ -121,46 +121,57 @@ export default function MedicoPacientesList() {
     { key: "actions", label: "Acción" },
   ];
 
-  // 🔹 Transformar los datos para la tabla
-  const tableData = filteredPatients.map((patient, index) => ({
-    index: index + 1,
-    identification: patient.identification,
-    fullName: patient.fullName,
-    symptoms: patient.symptoms,
-    priorityLevel: (
-      <span
-        className={`px-3 py-1 rounded-full text-sm font-semibold ${
-          patient.priorityLevel === "Rojo"
-            ? "bg-red-100 text-red-700"
-            : patient.priorityLevel === "Naranja"
-              ? "bg-orange-100 text-orange-700"
-              : patient.priorityLevel === "Amarillo"
-                ? "bg-yellow-100 text-yellow-700"
-                : patient.priorityLevel === "Verde"
-                  ? "bg-green-100 text-green-700"
-                  : patient.priorityLevel === "Azul"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-100 text-gray-700"
-        }`}
-      >
-        {patient.priorityLevel}
-      </span>
-    ),
-    arrivalHour: patient.arrivalHour,
-    medicName: patient.medicName,
-    actions: (
-      <Button
-        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
-        onClick={() => handleSeleccionar(patient.triageId)}
-      >
-        Seleccionar
-      </Button>
-    ),
-  }));
+  const tableData = filteredPatients.map((patient, index) => {
+    const isAssigned =
+    patient.medicName &&
+    patient.medicName.trim() !== "" &&
+    patient.medicName.trim().toLowerCase() !== "sin asignar";
+
+    return {
+      index: index + 1,
+      identification: patient.identification,
+      fullName: patient.fullName,
+      symptoms: patient.symptoms,
+      priorityLevel: (
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            patient.priorityLevel === "Rojo"
+              ? "bg-red-100 text-red-700"
+              : patient.priorityLevel === "Naranja"
+                ? "bg-orange-100 text-orange-700"
+                : patient.priorityLevel === "Amarillo"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : patient.priorityLevel === "Verde"
+                    ? "bg-green-100 text-green-700"
+                    : patient.priorityLevel === "Azul"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-700"
+          }`}
+        >
+          {patient.priorityLevel}
+        </span>
+      ),
+      arrivalHour: patient.arrivalHour,
+      medicName: patient.medicName || "—",
+      actions: (
+        <Button
+          className={`text-sm px-3 py-1 rounded ${
+            isAssigned
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+          disabled={isAssigned}
+          onClick={() => !isAssigned && handleSeleccionar(patient.triageId)}
+        >
+          {isAssigned ? "Asignado" : "Seleccionar"}
+        </Button>
+      ),
+    };
+  });
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <h2 className="text-3xl font-bold mb-4 text-gray-800">
+      <h2 className="text-3xl font-extrabold text-gray-800">
         Pacientes en Triage
       </h2>
 
