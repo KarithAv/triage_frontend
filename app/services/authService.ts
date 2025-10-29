@@ -5,11 +5,12 @@ const API_URL = "https://localhost:7233";
 export default class AuthService {
   static async login(email: string, password: string) {
     try {
-      const response = await axios.post(`${API_URL}/login`, {
-        email,
-        password,
-      });
-      return response.data;
+      const response = await axios.post(`${API_URL}/login`, { email, password},{ withCredentials: true });
+      return {
+        success: response.data?.success,
+        expiresAt: response.data?.expiresAt,
+        user: response.data?.user
+      };
     } catch (error: any) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -32,15 +33,13 @@ export default class AuthService {
     try {
       const response = await fetch(`${API_URL}/logout`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        credentials: "include" // importante para backend
       });
       if (response.ok) {
         console.log("Sesión cerrada en el servidor");
       } else {
         console.warn("Error al cerrar sesión en el servidor:", response.status);
-      }
+      } 
     } catch (error) {
       console.error("Error de conexión al cerrar sesión:", error);
     }
