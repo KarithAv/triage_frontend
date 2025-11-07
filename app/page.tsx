@@ -1,5 +1,48 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import AuthService from "@/app/services/authService";
+import { FaUser, FaLock } from "react-icons/fa";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const data = await AuthService.login(email, password);
+      //console.log("✅ Respuesta del servidor:", data);
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        Cookies.set("token", data.token);
+        Cookies.set("user", JSON.stringify(data.user));
+      }
+
+      // Determinar rol
+      const rol = data.user?.roleName?.toLowerCase() || "";
+
+      if (rol.includes("administrador")) router.push("/administrator");
+      else if (rol.includes("medico") || rol.includes("médico"))
+        router.push("/doctor");
+      else router.push("/nurse");
+    } catch (err: any) {
+      setError(err.message || "Error al iniciar sesión");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 export default function Home() {
   return (
