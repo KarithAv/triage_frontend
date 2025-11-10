@@ -126,25 +126,40 @@ export default function CreateUser({ onClose, onUserCreated }: CreateUserProps) 
                     className="col-span-2 border rounded-lg px-3 py-2"
                     required
                 />
-                <input
-                    name="birthDate"
-                    type="date"
-                    value={form.birthDate}
-                    onChange={handleChange}
-                    className="border rounded-lg px-3 py-2"
-                    required
-                />
-                <select
-                    name="gender"
-                    value={form.gender}
-                    onChange={handleChange}
-                    className="border rounded-lg px-3 py-2"
-                    required
-                >
-                    <option value="">Sexo Biológico</option>
-                    <option value="M">Masculino</option>
-                    <option value="F">Femenino</option>
-                </select>
+              <div className="flex flex-col">
+                    <label htmlFor="birthDate" className="text-sm text-gray-700 mb-1">
+                        Fecha de nacimiento
+                    </label>
+                    <input
+                        id="birthDate"
+                        name="birthDate"
+                        type="date"
+                        value={form.birthDate}
+                        onChange={handleChange}
+                        className="border rounded-lg px-3 py-2"
+                        required
+                    />
+                </div>
+
+          {/* Sexo */}
+                <div className="flex flex-col">
+                    <label htmlFor="gender" className="text-sm text-gray-700 mb-1">
+                        Sexo
+                    </label>
+                    <select
+                        id="gender"
+                        name="gender"
+                        value={form.gender}
+                        onChange={handleChange}
+                        className="border rounded-lg px-3 py-2"
+                        required
+                    >
+                        <option value="">Seleccionar</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                    </select>
+                </div>
+                
                 <input
                     name="emergencyContact"
                     value={form.emergencyContact}

@@ -4,6 +4,7 @@ import axios from "axios";
 const API_URL = "https://localhost:7233/api/Patient";
 const API2_URL = "https://localhost:7233/api/TriagePatient";
 const API3_URL = "https://localhost:7233/api/TriageResult/getTriagePatient";
+const API4_URL = "https://localhost:7233/api/PriorityUpdate/status/patient";
 
 export default class PatientService {
   static async createPatient(formData: any) {
@@ -119,4 +120,8 @@ export default class PatientService {
       };
     }
   }
-}
+   static async getPatientStatus(idPatient: number) {
+    const response = await axios.get(`${API4_URL}/${idPatient}`);
+    return response.data;
+  }
+  }
