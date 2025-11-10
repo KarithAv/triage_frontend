@@ -141,6 +141,10 @@ export default function EditUser({ userId, onClose, onUserUpdated }: EditUserPro
           className="col-span-2 border rounded-lg px-3 py-2"
           required
         />
+           <div className="flex flex-col">
+                    <label htmlFor="birthDate" className="text-sm text-gray-700 mb-1">
+                        Fecha de nacimiento
+                    </label>
         <input
           name="birthDate"
           type="date"
@@ -149,6 +153,11 @@ export default function EditUser({ userId, onClose, onUserUpdated }: EditUserPro
           className="border rounded-lg px-3 py-2"
           required
         />
+        </div>
+    <div className="flex flex-col">
+                    <label htmlFor="gender" className="text-sm text-gray-700 mb-1">
+                        Sexo
+                    </label>
         <select
           name="gender"
           value={form.gender}
@@ -160,6 +169,8 @@ export default function EditUser({ userId, onClose, onUserUpdated }: EditUserPro
           <option value="M">Masculino</option>
           <option value="F">Femenino</option>
         </select>
+         </div>
+
         <input
           name="emergencyContact"
           value={form.emergencyContact}
