@@ -180,14 +180,7 @@ export default function SugerenciaIA() {
           })}
         </div>
 
-        <div className="flex justify-between mt-8">
-          <Button
-            onClick={() => window.history.back()}
-            className="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded-lg font-semibold"
-          >
-            Cancelar
-          </Button>
-
+        <div className="flex justify-center mt-8">
           <Button
             onClick={handleConfirmar}
             className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold"

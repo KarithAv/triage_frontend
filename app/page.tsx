@@ -34,9 +34,9 @@ export default function LoginPage() {
       const rol = data.user?.roleName?.toLowerCase() || "";
 
       if (rol.includes("administrador")) router.push("/administrator");
-      else if (rol.includes("medico") || rol.includes("médico"))
-        router.push("/doctor");
-      else router.push("/nurse");
+      else if (rol.includes("medico")) router.push("/doctor")
+      else if (rol.includes("enfermero")) router.push("/nurse")
+      else router.push("/patient");
     } catch (err: any) {
       setError(err.message || "Error al iniciar sesión");
     } finally {

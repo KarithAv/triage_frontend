@@ -57,16 +57,16 @@ const menuByRol: Record<
         },
       ],
     },
+     { name: "ALERTAS", path: "/nurse/alerts" },
   ],
   Médico: [
     { name: "INICIO", path: "/doctor" },
-    { name: "LISTA DE PACIENTES", path: "/doctor/triagePatientList" },
+    { name: "GESTIÓN DE CONSULTAS", path: "/doctor/triagePatientList" },
   ],
   Paciente: [
-    { name: "INICIO", path: "/paciente/inicio" },
-    { name: "MI ESTADO", path: "/paciente/estado" },
-    { name: "HISTORIAL DE ATENCIÓN", path: "/paciente/historial" },
-    { name: "NOTIFICACIONES", path: "/paciente/notificaciones" },
+    { name: "INICIO", path: "/patient" },
+    { name: "MI ESTADO", path: "/patient/status"},
+    { name: "HISTORIAL DE ATENCIÓN", path: "/patient/clinicHistory" },
   ],
 };
 
