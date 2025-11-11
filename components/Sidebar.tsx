@@ -28,7 +28,8 @@ const menuByRol: Record<
   Administrador: [
     { name: "INICIO", path: "/administrator" },
     { name: "GESTIÓN DE USUARIOS", path: "/administrator/users" },
-    { name: "REPORTES Y ESTADÍSTICAS", path: "/administrator/reports" },
+    { name: "REPORTES", path: "/administrator/reports" },
+    { name: "ESTADÍSTICAS", path: "/administrator/dashboard" },
   ],
   Enfermero: [
     { name: "INICIO", path: "/nurse" },
