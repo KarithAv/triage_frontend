@@ -1,14 +1,13 @@
-import axios from "axios";
-
-const API_URL = "https://localhost:7233/api/Exam";
-const API2_URL = "https://localhost:7233/api/Medication";
-const API3_URL = "https://localhost:7233/api/Treatment";
+import api from "./api"; 
 
 export default class TreatmentService {
+
+  // --------------------------------------------------------
   // Obtener todos los exámenes
+  // --------------------------------------------------------
   static async getAllExams() {
     try {
-      const response = await axios.get(`${API_URL}/get-all`);
+      const response = await api.get("/Exam/get-all");
 
       return {
         success: true,
@@ -24,10 +23,12 @@ export default class TreatmentService {
     }
   }
 
-  //  Obtener todos los medicamentos
+  // --------------------------------------------------------
+  // Obtener todos los medicamentos
+  // --------------------------------------------------------
   static async getAllMedication() {
     try {
-      const response = await axios.get(`${API2_URL}/get-all`);
+      const response = await api.get("/Medication/get-all");
 
       return {
         success: true,
@@ -42,6 +43,10 @@ export default class TreatmentService {
       };
     }
   }
+
+  // --------------------------------------------------------
+  // Registrar tratamiento médico
+  // --------------------------------------------------------
   static async registerTreatment(data: {
     consultationId: number;
     description: string;
@@ -49,18 +54,21 @@ export default class TreatmentService {
     examIds: number[];
   }) {
     try {
-      const response = await axios.post(`${API3_URL}/register`, data);
+      const response = await api.post("/Treatment/register", data);
+
       return {
         success: true,
-        message: "Tratamiento registrado con exito. Consulta finalizada ",
+        message: "Tratamiento registrado con éxito. Consulta finalizada.",
         data: response.data,
       };
     } catch (error: any) {
       console.error("Error al registrar tratamiento:", error);
+
       return {
         success: false,
         message:
-          error.response?.data?.message || "Error al registrar el tratamiento.",
+          error.response?.data?.message ||
+          "Error al registrar el tratamiento.",
       };
     }
   }

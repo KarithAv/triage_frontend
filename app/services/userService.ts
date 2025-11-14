@@ -1,15 +1,18 @@
 // app/services/userService.ts
-import axios from "axios";
-
-const API_URL = "https://localhost:7233/api/User";
+import api from "./api"; // 🔥 Usa el cliente con withCredentials: true
 
 export default class UserService {
+  
+  // --------------------------------------------------------
+  // Obtener lista de usuarios
+  // --------------------------------------------------------
   static async getUsers(searchTerm?: string) {
     try {
       const url = searchTerm && searchTerm.trim().length > 0
-        ? `${API_URL}?searchTerm=${searchTerm}`
-        : API_URL;
-      const res = await axios.get(url);
+        ? `/User?searchTerm=${searchTerm}`
+        : `/User`;
+
+      const res = await api.get(url);
       return res.data; // { message, data }
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -17,9 +20,12 @@ export default class UserService {
     }
   }
 
+  // --------------------------------------------------------
+  // Obtener usuario por ID
+  // --------------------------------------------------------
   static async getUserById(userId: number) {
     try {
-      const res = await axios.get(`${API_URL}/GetUserById/${userId}`);
+      const res = await api.get(`/User/GetUserById/${userId}`);
       return res.data; // { message, data }
     } catch (error) {
       console.error("Error al obtener usuario:", error);
@@ -27,7 +33,10 @@ export default class UserService {
     }
   }
 
- static async createUser(formData: any) {
+  // --------------------------------------------------------
+  // Crear usuario
+  // --------------------------------------------------------
+  static async createUser(formData: any) {
     try {
       const payload = {
         firstNameUs: formData.firstName,
@@ -40,52 +49,86 @@ export default class UserService {
         genderUs: formData.gender === "M",
         emergencyContactUs: formData.emergencyContact,
         addressUs: formData.address,
-        roleIdUs: formData.role === "admin" ? 1 : formData.role === "medico" ? 4 : 2,
+
+        // 🔥 Asignación REAL según ID de la tabla ROL
+        // 1 → Admin
+        // 2 → Enfermero
+        // 3 → Paciente
+        // 4 → Médico
+        roleIdUs:
+          formData.role === "admin"
+            ? 1
+            : formData.role === "enfermero"
+            ? 2
+            : formData.role === "paciente"
+            ? 3
+            : 4,
+
         stateIdUs: formData.state === "Activo" ? 1 : 0,
       };
 
-      const res = await axios.post(`${API_URL}/create`, payload);
+      const res = await api.post(`/User/create`, payload);
       return { Success: true, message: res.data.message };
 
     } catch (error: any) {
       if (error.response?.status === 400) {
         return { Success: false, message: error.response.data.message };
       }
-      return { Success: false, message: "Ocurrió un error inesperado al crear el usuario" };
+      return {
+        Success: false,
+        message: "Ocurrió un error inesperado al crear el usuario",
+      };
     }
   }
 
+  // --------------------------------------------------------
+  // Actualizar usuario
+  // --------------------------------------------------------
   static async updateUser(userId: number, formData: any) {
-  try {
-    const payload = {
-      userId,
-      firstNameUs: formData.firstName,
-      lastNameUs: formData.lastName,
-      emailUs: formData.email,
-      phoneUs: formData.phone,
-      identificationUs: formData.identification,
-      birthDateUs: formData.birthDate,
-      genderUs: formData.gender === "M",
-      emergencyContactUs: formData.emergencyContact,
-      addressUs: formData.address,
-      roleIdUs: formData.role === "admin" ? 1 : formData.role === "medico" ? 4 : 2,
-      stateIdUs: formData.state === "Activo" ? 1 : 0,
-    };
+    try {
+      const payload = {
+        userId,
+        firstNameUs: formData.firstName,
+        lastNameUs: formData.lastName,
+        emailUs: formData.email,
+        phoneUs: formData.phone,
+        identificationUs: formData.identification,
+        birthDateUs: formData.birthDate,
+        genderUs: formData.gender === "M",
+        emergencyContactUs: formData.emergencyContact,
+        addressUs: formData.address,
 
-    const res = await axios.put(`${API_URL}/UpdateUser/${userId}`, payload);
-    return { Success: true, message: res.data.message };
+        roleIdUs:
+          formData.role === "admin"
+            ? 1
+            : formData.role === "enfermero"
+            ? 2
+            : formData.role === "paciente"
+            ? 3
+            : 4,
 
-  } catch (error: any) {
-    if (error.response?.status === 409) {
-      return { Success: false, message: error.response.data.message };
+        stateIdUs: formData.state === "Activo" ? 1 : 0,
+      };
+
+      const res = await api.put(`/User/UpdateUser/${userId}`, payload);
+      return { Success: true, message: res.data.message };
+
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        return { Success: false, message: error.response.data.message };
+      }
+      return { Success: false, message: "Ocurrió un error inesperado" };
     }
-    return { Success: false, message: "Ocurrió un error inesperado" };
   }
-}
 
+  // --------------------------------------------------------
+  // Cambiar estado de usuario
+  // --------------------------------------------------------
   static async changeUserStatus(userId: number, newState: number) {
     try {
-      const res = await axios.put(`${API_URL}/ChangeStatus/${userId}?newState=${newState}`);
+      const res = await api.put(
+        `/User/ChangeStatus/${userId}?newState=${newState}`
+      );
       return res.data;
     } catch (error) {
       console.error("Error cambiando estado del usuario:", error);
