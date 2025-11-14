@@ -1,4 +1,4 @@
-import api from "./api"; // 🔥 axios con withCredentials: true
+import api from "./api"; 
 
 const API_URL = "/Diagnosis";
 const API2_URL = "/History";

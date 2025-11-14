@@ -1,5 +1,5 @@
 // services/patientService.ts
-import api from "./api"; // 🔥 usa axios con withCredentials
+import api from "./api"; 
 
 export default class PatientService {
   // -------------------------------------------------

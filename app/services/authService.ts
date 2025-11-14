@@ -9,11 +9,11 @@ export default class AuthService {
         `${API_URL}/Autentication/login`,
         { email, password },
         {
-          withCredentials: true, // ⬅ NECESARIO PARA RECIBIR HttpOnly cookies
+          withCredentials: true, 
         }
       );
 
-      return response.data; // Solo contiene { id, firstNameUs, lastNameUs, roleIdUs }
+      return response.data; 
     } catch (error: any) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -39,7 +39,7 @@ export default class AuthService {
         `${API_URL}/Autentication/logout`,
         {},
         {
-          withCredentials: true, // Para que backend borre la cookie HttpOnly
+          withCredentials: true, 
         }
       );
     } catch (error) {

@@ -1,4 +1,4 @@
-import api from "./api"; // 🔥 usa axios con withCredentials: true
+import api from "./api"; 
 
 const API_URL = "/MedicListP";
 const API2_URL = "/TriageFullInfo";

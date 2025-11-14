@@ -1,6 +1,6 @@
 import api from "./api";
 
-const API_URL = "/Dashboard";  // 🔥 Respetamos la ruta exacta del backend
+const API_URL = "/Dashboard"; 
 
 export default class DashboardService {
 

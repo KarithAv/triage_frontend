@@ -87,7 +87,7 @@ export default function Sidebar() {
     if (u) {
       setUser(u);
 
-      // 🔥 MAPEAR roleIdUs → roleName real
+      
       const mapped = roleMap[u.roleIdUs];
       setRoleName(mapped);
     }
@@ -115,7 +115,7 @@ export default function Sidebar() {
         </p>
 
         {/* Solo mostrar nombre del rol */}
-        <p className="text-sm opacity-80 capitalize">{roleName}</p>
+       
       </div>
 
       {/* Menú */}
