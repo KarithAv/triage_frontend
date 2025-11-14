@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+     "sonar": "C:/Users/Admin/scoop/apps/sonar-scanner/current/bin/sonar-scanner.bat"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.17",
