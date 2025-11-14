@@ -1,10 +1,14 @@
-import axios from "axios";
-import { getUser, getUserId } from "@/app/utilities/session";
+import api from "./api"; 
+import { getUserId } from "@/app/utilities/session";
 
-const API_URL = "https://localhost:7233/api/Triage";
-const API2_URL = "https://localhost:7233/api/TriageResult";
+const API_URL = "/Triage";
+const API_RESULT_URL = "/TriageResult";
 
 export default class TriageService {
+
+  // =========================================================
+  // REGISTRAR TRIAGE
+  // =========================================================
   static async registerTriage(data: {
     vitalSigns: {
       heartRate: number;
@@ -19,7 +23,7 @@ export default class TriageService {
   }) {
     try {
       const idNurse = getUserId();
-      console.log(idNurse);
+
       if (!idNurse) {
         throw new Error("No se encontró un enfermero logueado en la sesión.");
       }
@@ -28,12 +32,13 @@ export default class TriageService {
         vitalSigns: data.vitalSigns,
         symptoms: data.symptoms,
         iD_Patient: data.idPatient,
-        iD_Doctor: 0, // por ahora queda en 0
+        iD_Doctor: 0,
         iD_Nurse: idNurse,
         patientAge: data.patientAge,
       };
 
-      const response = await axios.post(`${API_URL}/register`, payload);
+      const response = await api.post(`${API_URL}/register`, payload);
+
       const { idTriage, suggestedLevel, confidence, message } = response.data;
 
       return {
@@ -50,35 +55,41 @@ export default class TriageService {
     }
   }
 
+  // =========================================================
+  // OBTENER PRIORIDADES
+  // =========================================================
   static async getAllPriorities() {
     try {
-      const response = await axios.get(`${API2_URL}/allPriorities`);
+      const response = await api.get(`${API_RESULT_URL}/allPriorities`);
       if (response.data.success) {
         return response.data.data;
-      } else {
-        throw new Error("No se pudieron obtener las prioridades");
       }
+      throw new Error("No se pudieron obtener las prioridades");
     } catch (error: any) {
       console.error("Error al obtener prioridades:", error);
       throw error.response?.data || error.message;
     }
   }
 
+  // =========================================================
+  // OBTENER SUGERENCIA DE IA
+  // =========================================================
   static async getTriageSuggestion(triageId: number) {
     try {
-      const response = await axios.get(`${API2_URL}/priorityInfo/${triageId}`);
+      const response = await api.get(`${API_RESULT_URL}/priorityInfo/${triageId}`);
       if (response.data.success) {
         return response.data.data;
-      } else {
-        throw new Error(
-          response.data.message || "No se pudo obtener la sugerencia de IA"
-        );
       }
+      throw new Error(response.data.message || "No se pudo obtener la sugerencia de IA");
     } catch (error: any) {
       console.error("Error al obtener sugerencia de IA:", error);
       throw error.response?.data || error.message;
     }
   }
+
+  // =========================================================
+  // REGISTRAR RESULTADO DE TRIAGE
+  // =========================================================
   static async registerTriageResult(data: {
     TriageId: number;
     PriorityId: number;
@@ -86,7 +97,7 @@ export default class TriageService {
     IsFinalPriority: boolean;
   }) {
     try {
-      const response = await axios.post(`${API2_URL}/register`, data);
+      const response = await api.post(`${API_RESULT_URL}/register`, data);
       return {
         success: response.data.success,
         message: response.data.message,
