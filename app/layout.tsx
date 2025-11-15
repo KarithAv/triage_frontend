@@ -23,10 +23,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="m-0 p-0 min-h-screen">
-        {/* Oculta la URL real */}
-        
-
-        {/* Tu layout de la app */}
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
