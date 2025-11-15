@@ -1,44 +1,62 @@
-import axios from "axios";
+import api from "./api"; 
 
-const API_URL = "https://localhost:7233/api/MedicListP";
-const API2_URL = "https://localhost:7233/api/TriageFullInfo";
+const API_URL = "/MedicListP";
+const API2_URL = "/TriageFullInfo";
+const API3_URL = "/Consultation";
 
 export default class DoctorService {
+
+  // ================================
+  // 1. Obtener lista filtrada de pacientes
+  // ================================
   static async getAllFiltered(fullName: string, identification: string) {
     try {
-      const response = await axios.post(`${API_URL}/GetAllFiltered`, {
+      const { data } = await api.post(`${API_URL}/GetAllFiltered`, {
         fullName,
         identification,
       });
-      return response.data;
-    } catch (error) {
-      console.error("Error al obtener la lista de pacientes:", error);
-      throw error;
+      return data;
+    } catch (error: any) {
+      console.error("❌ Error al obtener la lista de pacientes:", error);
+      throw error.response?.data || error.message;
     }
   }
 
+  // ================================
+  // 2. Obtener detalles de un triage
+  // ================================
   static async getTriageDetails(idTriage: number) {
     try {
-      const response = await axios.get(`${API2_URL}/details/${idTriage}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error al obtener los detalles del triage:", error);
-      throw error;
+      const { data } = await api.get(`${API2_URL}/details/${idTriage}`);
+      return data;
+    } catch (error: any) {
+      console.error("❌ Error al obtener detalles del triage:", error);
+      throw error.response?.data || error.message;
     }
   }
 
+  // ================================
+  // 3. Obtener historial clínico completo
+  // ================================
   static async getConsultationHistory(patientId: number) {
     try {
-      const response = await axios.get(`${API2_URL}/history/${patientId}`);
-      return { success: true, data: response.data.data || [] };
+      const { data } = await api.get(`${API2_URL}/history/${patientId}`);
+
+      return {
+        success: true,
+        data: data.data || [],
+      };
     } catch (error: any) {
       if (error.response?.status === 404) {
         return {
           success: false,
-          message: "No hay historial clínico registrado para este paciente.",
+          message:
+            "No hay historial clínico registrado para este paciente.",
         };
       }
-      console.error("Error al obtener historial:", error);
+
+      console.error("❌ Error al obtener historial:", error);
+
       return {
         success: false,
         message:
@@ -48,17 +66,15 @@ export default class DoctorService {
     }
   }
 
+  // ================================
+  // 4. Iniciar consulta médica
+  // ================================
   static async startConsultation(idMedic: number, idTriage: number) {
     try {
-      const response = await axios.post(
-        `https://localhost:7233/api/Consultation/start`,
-        {
-          idMedic,
-          idTriage,
-        }
-      );
-      console.log("📥 Respuesta API /Consultation/start:", response.data);
-      const data = response.data;
+      const { data } = await api.post(`${API3_URL}/start`, {
+        idMedic,
+        idTriage,
+      });
 
       return {
         success: data.success || false,
@@ -66,7 +82,8 @@ export default class DoctorService {
         consultationId: data.consultationId || null,
       };
     } catch (error: any) {
-      console.error("Error al iniciar la consulta médica:", error);
+      console.error("❌ Error al iniciar la consulta médica:", error);
+
       return {
         success: false,
         message:

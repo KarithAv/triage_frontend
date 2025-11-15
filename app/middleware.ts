@@ -1,37 +1,49 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const publicRoutes = ["/"];
-
-const roleRoutes: Record<string, string[]> = {
-  Administrador: ["/administrator", "/users"],
-  Medico: ["/doctor"],
-  Enfermero: ["/nurse", "/patients", "/triage"],
-  Paciente: ["/paciente"],
+// Permisos correctos según la BD real
+const roleRoutesById: Record<number, string[]> = {
+  1: ["/administrator"], // Administrador
+  2: ["/nurse"],         // Enfermero
+  3: ["/patient"],       // Paciente
+  4: ["/doctor"],        // Médico
 };
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const token = req.cookies.get("token")?.value;
-  const userData = req.cookies.get("user")?.value
-    ? JSON.parse(req.cookies.get("user")!.value)
-    : null;
 
-  if (publicRoutes.includes(pathname)) return NextResponse.next();
+  // Token HttpOnly
+  const token = req.cookies.get("X-Auth")?.value;
 
-  if (!token || !userData) {
+  // Cookie visible con datos reducidos
+  const userRaw = req.cookies.get("user")?.value;
+  let user: any = null;
+
+  if (userRaw) {
+    try {
+      user = JSON.parse(userRaw);
+    } catch {
+      user = null;
+    }
+  }
+
+  //-------------- 🔒 VALIDACIONES DE AUTENTICACIÓN --------------
+  if (!token || !user || typeof user.roleIdUs !== "number") {
     const url = req.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
   }
 
-  // Si hay usuario, validar acceso según rol
-  const userRole = userData.roleName;
-  const allowedRoutes = roleRoutes[userRole] || [];
+  //-------------- 🔐 VALIDACIONES DE ACCESO POR ROL --------------
+  const roleId = user.roleIdUs;
 
-  // Si la ruta actual no pertenece al rol → redirigir
-  const hasAccess = allowedRoutes.some((route) => pathname.startsWith(route));
-  if (!hasAccess) {
+  const allowedRoutes = roleRoutesById[roleId] || [];
+
+  const allowed = allowedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  if (!allowed) {
     const url = req.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
@@ -40,12 +52,12 @@ export function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-// Definir en qué rutas aplica el middleware
+// Solo se ejecuta en rutas privadas
 export const config = {
   matcher: [
     "/administrator/:path*",
     "/doctor/:path*",
     "/nurse/:path*",
-    "/paciente/:path*",
+    "/patient/:path*",
   ],
 };

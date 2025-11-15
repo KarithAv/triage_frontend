@@ -19,28 +19,25 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-  const data = (await AuthService.login(email, password)) as any;
-      //console.log("✅ Respuesta del servidor:", data);
+      const data = await AuthService.login(email, password);
 
-      // Guardar token si viene (algunos backends usan cookies en lugar de token)
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        Cookies.set("token", data.token);
-      }
+      // Guardar solo lo permitido
+      Cookies.set("user", JSON.stringify(data.user), {
+        path: "/",
+        secure: true,
+        sameSite: "none",
+      });
 
-      // Guardar información del usuario si está presente
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        Cookies.set("user", JSON.stringify(data.user));
-      }
+      // Obtener rol real según BD
+      const roleId = data.user.roleIdUs;
 
-      // Determinar rol
-      const rol = data.user?.roleName?.toLowerCase() || "";
+      // Redirecciones correctas
+      if (roleId === 1) router.push("/administrator"); 
+      else if (roleId === 2) router.push("/nurse");
+      else if (roleId === 3) router.push("/patient");
+      else if (roleId === 4) router.push("/doctor");
+      else router.push("/");
 
-      if (rol.includes("administrador")) router.push("/administrator");
-      else if (rol.includes("medico")) router.push("/doctor")
-      else if (rol.includes("enfermero")) router.push("/nurse")
-      else router.push("/patient");
     } catch (err: any) {
       setError(err.message || "Error al iniciar sesión");
     } finally {
@@ -48,7 +45,7 @@ export default function LoginPage() {
     }
   };
 
-return (
+  return (
     <div className="flex flex-col md:flex-row min-h-screen w-full overflow-hidden">
       {/* Imagen a la izquierda */}
       <div className="md:w-1/2 w-full bg-[#48B294] flex flex-col justify-center items-center relative">
@@ -122,8 +119,7 @@ return (
             </button>
 
             <p className="text-center text-xs text-gray-500 mt-3">
-              *En el primer inicio de sesión, la contraseña será igual a la
-              cédula
+              *En el primer inicio de sesión, la contraseña será igual a la cédula
             </p>
           </form>
         </div>

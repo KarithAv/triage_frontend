@@ -5,6 +5,11 @@ import DashboardService from "@/app/services/dashboardService";
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   Tooltip,
@@ -13,22 +18,44 @@ import {
   Legend,
 } from "recharts";
 import { Card } from "@/components/card";
-import { Button } from "@/components/button";
+import DashboardFilters from "@/components/dashboardFilters";
 
+const COLOR_MAP: Record<string, string> = {
+  Rojo: "#f87171",
+  Naranja: "#fbbf24ff",
+  Verde: "#91ff00ff",
+  Azul: "#60a5fa",
+  Amarillo: "#fbff05ff",
+};
 export default function DashboardData() {
   const [priorities, setPriorities] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [nurses, setNurses] = useState<any[]>([]);
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
 
-  const [filters, setFilters] = useState({
+  const [avgTimes, setAvgTimes] = useState<any[]>([]);
+  const [attentions, setAttentions] = useState<any[]>([]);
+  const [priorityDist, setPriorityDist] = useState<any[]>([]);
+  const [diagnosisFreq, setDiagnosisFreq] = useState<any[]>([]);
+
+  const [loading, setLoading] = useState({
+    avg: false,
+    att: false,
+    pri: false,
+    diag: false,
+  });
+
+  const defaultFilter = {
     startDate: new Date().toISOString().split("T")[0],
     endDate: new Date().toISOString().split("T")[0],
     priorityId: null as number | null,
     doctorId: null as number | null,
     nurseId: null as number | null,
-  });
+  };
+
+  const [filterAvg, setFilterAvg] = useState(defaultFilter);
+  const [filterAtt, setFilterAtt] = useState(defaultFilter);
+  const [filterPri, setFilterPri] = useState(defaultFilter);
+  const [filterDiag, setFilterDiag] = useState(defaultFilter);
 
   useEffect(() => {
     Promise.all([
@@ -42,148 +69,258 @@ export default function DashboardData() {
     });
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadAvgTimes = async () => {
+    setLoading((p) => ({ ...p, avg: true }));
     try {
-      const response = await DashboardService.getDashboardData(filters);
-      setData(response || []);
-    } catch (error) {
-      console.error("Error al cargar datos del dashboard:", error);
-      setData([]);
+      const res = await DashboardService.getAverageTimes(filterAvg);
+      setAvgTimes(res || []);
+    } catch (err) {
+      console.error(err);
+      setAvgTimes([]);
     } finally {
-      setLoading(false);
+      setLoading((p) => ({ ...p, avg: false }));
+    }
+  };
+
+  const loadAttentions = async () => {
+    setLoading((p) => ({ ...p, att: true }));
+    try {
+      const res = await DashboardService.getAttentions(filterAtt);
+      setAttentions(res || []);
+    } catch (err) {
+      console.error(err);
+      setAttentions([]);
+    } finally {
+      setLoading((p) => ({ ...p, att: false }));
+    }
+  };
+
+  const loadPriorityDist = async () => {
+    setLoading((p) => ({ ...p, pri: true }));
+    try {
+      const res = await DashboardService.getPriorityDistribution(filterPri);
+      setPriorityDist(res || []);
+    } catch (err) {
+      console.error(err);
+      setPriorityDist([]);
+    } finally {
+      setLoading((p) => ({ ...p, pri: false }));
+    }
+  };
+
+  const loadDiagnosisFreq = async () => {
+    setLoading((p) => ({ ...p, diag: true }));
+    try {
+      const res = await DashboardService.getDiagnosisFrequency(filterDiag);
+      setDiagnosisFreq(res || []);
+    } catch (err) {
+      console.error(err);
+      setDiagnosisFreq([]);
+    } finally {
+      setLoading((p) => ({ ...p, diag: false }));
     }
   };
 
   useEffect(() => {
-    loadData();
+    loadAvgTimes();
+    loadAttentions();
+    loadPriorityDist();
+    loadDiagnosisFreq();
   }, []);
 
-  const handleFilterChange = (key: string, value: any) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value === "" ? null : value,
-    }));
-  };
-
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-10">
       <Card>
-        <h2 className=" flex justify-center items-center text-3xl font-extrabold text-gray-800">
-          Estadisticas
+        <h2 className="text-center text-3xl font-extrabold text-gray-800 mb-4">
+          Estadísticas
         </h2>
       </Card>
 
+      {/* Tiempos Promedios */}
       <Card>
-   {/* 🔹 Filtros estilizados */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-5 gap-3 flex-wrap">
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <label className="text-sm font-semibold whitespace-nowrap">
-              Filtrar por:
-            </label>
-          </div>
+        <h3 className="text-xl font-bold mb-3 text-gray-700 text-center">
+          Tiempos Promedios de Atención (minutos)
+        </h3>
+        <DashboardFilters
+          filters={filterAvg}
+          setFilters={setFilterAvg}
+          onUpdate={loadAvgTimes}
+          loading={loading.avg}
+          priorities={priorities}
+          doctors={doctors}
+          nurses={nurses}
+        />
 
-          <div className="flex flex-wrap gap-3 justify-center sm:justify-end w-full">
-            <input
-              type="date"
-              value={filters.startDate}
-              onChange={(e) => handleFilterChange("startDate", e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 w-40 focus:ring-2 focus:ring-purple-400 outline-none"
-            />
-
-            <input
-              type="date"
-              value={filters.endDate}
-              onChange={(e) => handleFilterChange("endDate", e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 w-40 focus:ring-2 focus:ring-purple-400 outline-none"
-            />
-
-            <select
-              value={filters.priorityId ?? ""}
-              onChange={(e) =>
-                handleFilterChange(
-                  "priorityId",
-                  e.target.value ? Number(e.target.value) : null
-                )
-              }
-              className="border border-gray-300 rounded-lg px-3 py-2 w-40 focus:ring-2 focus:ring-purple-400 outline-none"
-            >
-              <option value="">Prioridades</option>
-              {priorities.map((p) => (
-                <option key={p.priorityId} value={p.priorityId}>
-                  {p.priorityName}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={filters.doctorId ?? ""}
-              onChange={(e) =>
-                handleFilterChange(
-                  "doctorId",
-                  e.target.value ? Number(e.target.value) : null
-                )
-              }
-              className="border border-gray-300 rounded-lg px-3 py-2 w-40 focus:ring-2 focus:ring-purple-400 outline-none"
-            >
-              <option value="">Médicos</option>
-              {doctors.map((d) => (
-                <option key={d.userId} value={d.userId}>
-                  {d.fullName}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={filters.nurseId ?? ""}
-              onChange={(e) =>
-                handleFilterChange(
-                  "nurseId",
-                  e.target.value ? Number(e.target.value) : null
-                )
-              }
-              className="border border-gray-300 rounded-lg px-3 py-2 w-40 focus:ring-2 focus:ring-purple-400 outline-none"
-            >
-              <option value="">Enfermeros</option>
-              {nurses.map((n) => (
-                <option key={n.userId} value={n.userId}>
-                  {n.fullName}
-                </option>
-              ))}
-            </select>
-
-            <Button
-              onClick={loadData}
-              disabled={loading}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              {loading ? "Cargando..." : "Actualizar"}
-            </Button>
-          </div>
-        </div>
-
-         <h2 className=" flex justify-center items-center text-3xl font-extrabold text-gray-800">
-          Tiempos promedios de atención
-         </h2>
-
-        {/* 🔹 Gráfica */}
-        <div className="h-96 mt-8">
-          {data.length > 0 ? (
+        <div className="h-96 mt-6 flex items-center justify-center">
+          {avgTimes.length === 0 ? (
+            <p className="text-gray-500 font-medium">
+              No hay datos para los filtros seleccionados.
+            </p>
+          ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
+              <LineChart data={avgTimes}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="hour" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="waitingTime" stroke="#3b82f6" name="Tiempo de espera(min)" />
-                <Line type="monotone" dataKey="attentionTime" stroke="#10b981" name="Tiempo de atención(min)" />
+                <Line
+                  type="monotone"
+                  dataKey="waitingTime"
+                  stroke="#3b82f6"
+                  name="Tiempo de espera"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="attentionTime"
+                  stroke="#10b981"
+                  name="Tiempo de atención"
+                />
               </LineChart>
             </ResponsiveContainer>
+          )}
+        </div>
+      </Card>
+
+      {/* Total Pacientes por Semana */}
+      <Card>
+        <h3 className="text-xl font-bold mb-3 text-gray-700 text-center">
+          Total de Pacientes por Semana
+        </h3>
+        <DashboardFilters
+          filters={filterAtt}
+          setFilters={setFilterAtt}
+          onUpdate={loadAttentions}
+          loading={loading.att}
+          priorities={priorities}
+          doctors={doctors}
+          nurses={nurses}
+        />
+
+        <div className="h-96 mt-6 flex items-center justify-center">
+          {attentions.length === 0 ? (
+            <p className="text-gray-500 font-medium">
+              No hay datos para los filtros seleccionados.
+            </p>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              No hay datos disponibles para los filtros seleccionados
-            </div>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={attentions}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="week" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar
+                  dataKey="totalPatients"
+                  fill="#ae00f3ff"
+                  name="Pacientes"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </Card>
+
+      {/*Distribución por Prioridad */}
+      <Card>
+        <h2 className="flex justify-center items-center text-2xl font-bold text-gray-800">
+          Distribución de Pacientes por Prioridad
+        </h2>
+
+        <DashboardFilters
+          filters={filterPri}
+          setFilters={setFilterPri}
+          onUpdate={loadPriorityDist}
+          loading={loading.pri}
+          priorities={priorities}
+          doctors={doctors}
+          nurses={nurses}
+        />
+
+        <div className="h-96 mt-6 flex items-center justify-center">
+          {priorityDist.length === 0 ? (
+            <p className="text-gray-500 font-medium">
+              No hay datos para los filtros seleccionados.
+            </p>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={priorityDist}
+                  dataKey="percentage"
+                  nameKey="priorityName"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={120}
+                  label={(entry: any) =>
+                    `${entry.priorityName}: ${
+                      entry.totalPatients
+                    } pacientes (${entry.percentage.toFixed(1)}%)`
+                  }
+                >
+                  {priorityDist.map((entry, index) => (
+                    <Cell
+                      key={index}
+                      fill={COLOR_MAP[entry.priorityName] || "#ccc"}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: any, name: string, props: any) => [
+                    `${props.payload.totalPatients} pacientes`,
+                    name,
+                  ]}
+                />
+                <Legend
+                  formatter={(value: string) => (
+                    <span style={{ color: COLOR_MAP[value] || "#000" }}>
+                      {value}
+                    </span>
+                  )}
+                  verticalAlign="bottom"
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </Card>
+
+      {/* Frecuencia de Diagnósticos */}
+      <Card>
+        <h3 className="text-xl font-bold mb-3 text-gray-700 text-center">
+          Frecuencia de Diagnósticos
+        </h3>
+        <DashboardFilters
+          filters={filterDiag}
+          setFilters={setFilterDiag}
+          onUpdate={loadDiagnosisFreq}
+          loading={loading.diag}
+          priorities={priorities}
+          doctors={doctors}
+          nurses={nurses}
+        />
+
+        <div className="h-96 mt-6 flex items-center justify-center">
+          {diagnosisFreq.length === 0 ? (
+            <p className="text-gray-500 font-medium">
+              No hay datos para los filtros seleccionados.
+            </p>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={diagnosisFreq}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="diagnosisName" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="totalOccurrences" fill="#ec4899" name="Casos" />
+                <Bar
+                  dataKey="percentage"
+                  fill="#06b6d4"
+                  name="Porcentaje (%)"
+                />
+              </BarChart>
+            </ResponsiveContainer>
           )}
         </div>
       </Card>

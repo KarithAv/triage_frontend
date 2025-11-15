@@ -1,17 +1,22 @@
-import axios from "axios";
-const API_URL = "https://localhost:7233/api/Diagnosis";
-const API2_URL = "https://localhost:7233/api/History";
+import api from "./api"; 
+
+const API_URL = "/Diagnosis";
+const API2_URL = "/History";
 
 export default class DiagnosisService {
+
+  // ============================================
+  // 1. Obtener todos los diagnósticos
+  // ============================================
   static async getAll() {
     try {
-      const response = await axios.get(`${API_URL}/get-all`);
+      const { data } = await api.get(`${API_URL}/get-all`);
       return {
         success: true,
-        data: response.data,
+        data,
       };
-    } catch (error) {
-      console.error("Error al obtener diagnósticos:", error);
+    } catch (error: any) {
+      console.error("❌ Error al obtener diagnósticos:", error);
       return {
         success: false,
         message: "Error al obtener diagnósticos.",
@@ -20,17 +25,21 @@ export default class DiagnosisService {
     }
   }
 
+  // ============================================
+  // 2. Obtener diagnóstico por ID
+  // ============================================
   static async getById(diagnosisId: number) {
     try {
-      const response = await axios.post(`${API_URL}/get-by-id`, {
-        diagnosisId: diagnosisId,
+      const { data } = await api.post(`${API_URL}/get-by-id`, {
+        diagnosisId,
       });
+
       return {
         success: true,
-        data: response.data,
+        data,
       };
-    } catch (error) {
-      console.error("Error al obtener diagnóstico por ID:", error);
+    } catch (error: any) {
+      console.error("❌ Error al obtener diagnóstico por ID:", error);
       return {
         success: false,
         message: "Error al obtener diagnóstico por ID.",
@@ -39,16 +48,21 @@ export default class DiagnosisService {
     }
   }
 
+  // ============================================
+  // 3. Buscar historial por documento
+  // ============================================
   static async getByDocument(documentIdPt: string) {
     try {
-      const body = { documentIdPt };
-      const response = await axios.post(`${API2_URL}/get-by-document`, body);
+      const { data } = await api.post(`${API2_URL}/get-by-document`, {
+        documentIdPt,
+      });
+
       return {
         success: true,
-        data: response.data,
+        data,
       };
-    } catch (error) {
-      console.error("Error al obtener historial por documento:", error);
+    } catch (error: any) {
+      console.error("❌ Error al obtener historial por documento:", error);
       return {
         success: false,
         message: "Error al obtener historial del paciente.",
@@ -57,21 +71,29 @@ export default class DiagnosisService {
     }
   }
 
+  // ============================================
+  // 4. Registrar diagnóstico en historial
+  // ============================================
   static async addDiagnosis(consultationId: number, diagnosisId: number) {
     try {
-      const body = { consultationId, diagnosisId };
+      const { data } = await api.post(`${API2_URL}/add-diagnosis`, {
+        consultationId,
+        diagnosisId,
+      });
 
-      const response = await axios.post(`${API2_URL}/add-diagnosis`, body);
       return {
         success: true,
         message:
-          response.data?.message || "Diagnóstico registrado correctamente.",
+          data?.message || "Diagnóstico registrado correctamente.",
       };
-    } catch (error) {
-      console.error("Error al registrar diagnóstico en historial:", error);
+    } catch (error: any) {
+      console.error("❌ Error al registrar diagnóstico en historial:", error);
+
       return {
         success: false,
-        message: "Error al registrar diagnóstico en el historial.",
+        message:
+          error.response?.data?.message ||
+          "Error al registrar diagnóstico en el historial.",
       };
     }
   }

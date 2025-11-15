@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import ClientLayout from "./clientLayout";
+import HideUrlBar from "./HideUrlBar";         
 import "./globals.css";
 
 const poppins = Poppins({
@@ -22,6 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="m-0 p-0 min-h-screen">
+        {/* Oculta la URL real */}
+        <HideUrlBar />  
+
+        {/* Tu layout de la app */}
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
