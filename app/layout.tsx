@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="m-0 p-0 min-h-screen">
         {/* Oculta la URL real */}
-        <HideUrlBar />  
+        
 
         {/* Tu layout de la app */}
         <ClientLayout>{children}</ClientLayout>

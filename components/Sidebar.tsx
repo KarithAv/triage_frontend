@@ -73,7 +73,7 @@ const menuByRol: Record<
   Paciente: [
     { name: "INICIO", path: "/patient" },
     { name: "MI ESTADO", path: "/patient/status" },
-    { name: "HISTORIAL DE ATENCIÓN", path: "/patient/clinicHistory" },
+    { name: "HISTORIAL DE ATENCIÓN", path: "/patient/history" }
   ],
 };
 
