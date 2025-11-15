@@ -19,14 +19,18 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const data = await AuthService.login(email, password);
+  const data = (await AuthService.login(email, password)) as any;
       //console.log("✅ Respuesta del servidor:", data);
 
+      // Guardar token si viene (algunos backends usan cookies en lugar de token)
       if (data.token) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-
         Cookies.set("token", data.token);
+      }
+
+      // Guardar información del usuario si está presente
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
         Cookies.set("user", JSON.stringify(data.user));
       }
 
