@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme inline {
+@theme {
   --font-poppins: var(--font-Poppins-sans);
 }
 /* Colores individuales si los quieres usar en texto */

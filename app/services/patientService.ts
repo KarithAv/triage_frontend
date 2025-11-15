@@ -1,11 +1,10 @@
 // services/patientService.ts
-import axios from "axios";
-
-const API_URL = "https://localhost:7233/api/Patient";
-const API2_URL = "https://localhost:7233/api/TriagePatient";
-const API3_URL = "https://localhost:7233/api/TriageResult/getTriagePatient";
+import api from "./api"; 
 
 export default class PatientService {
+  // -------------------------------------------------
+  // Crear paciente
+  // -------------------------------------------------
   static async createPatient(formData: any) {
     try {
       const payload = {
@@ -13,26 +12,29 @@ export default class PatientService {
         firstNamePt: formData.firstName,
         lastNamePt: formData.lastName,
         birthDatePt: formData.birthDate,
-        genderPt: formData.gender === "M", // true si es masculino
+        genderPt: formData.gender === "M",
         emailPt: formData.email,
         phonePt: formData.phone,
-        emergencyContactPt: formData.emergencyContact || undefined,
-        addressPt: formData.address || undefined,
+        emergencyContactPt: formData.emergencyContact || null,
+        addressPt: formData.address || null,
       };
 
-      const res = await axios.post(`${API_URL}/create`, payload);
+      const res = await api.post(`/Patient/create`, payload);
 
       return {
         Success: true,
         message: res.data.message || "Paciente registrado correctamente",
       };
     } catch (error: any) {
+      console.error("❌ Error creando paciente:", error);
+
       if (error.response?.status === 400) {
         return {
           Success: false,
           message: error.response.data.message,
         };
       }
+
       return {
         Success: false,
         message: "Ocurrió un error inesperado al registrar el paciente",
@@ -40,13 +42,20 @@ export default class PatientService {
     }
   }
 
+  // -------------------------------------------------
+  // Listar pacientes en triage (filtro por color)
+  // -------------------------------------------------
   static async getPatients(color?: string) {
     try {
-      const url = color ? `${API2_URL}?color=${color}` : `${API2_URL}`;
-      const response = await axios.get(url);
+      const url = color
+        ? `/TriagePatient?color=${color}`
+        : `/TriagePatient`;
 
-      // Unir los signos vitales en un solo objeto por paciente
+      const response = await api.get(url);
+
       const patientsArray = response.data.data || [];
+
+      // Unir signos vitales en un solo objeto limpio
       const patients = patientsArray.map((p: any) => ({
         triageId: p.triageId,
         patientId: p.patientId,
@@ -65,58 +74,67 @@ export default class PatientService {
 
       return { data: patients };
     } catch (error) {
-      console.error("Error fetching patients:", error);
-      throw error;
+      console.error("❌ Error obteniendo pacientes:", error);
+      throw new Error("Error al obtener la lista de pacientes");
     }
   }
+
+  // -------------------------------------------------
+  // Obtener paciente por documento
+  // -------------------------------------------------
   static async getPatientByDocument(document: string) {
     try {
-      const response = await axios.post(
-        `${API_URL}/get-by-document`,
-        { documentIdPt: document },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await api.post(
+        `/Patient/get-by-document`,
+        { documentIdPt: document }
       );
 
       return response.data;
     } catch (error: any) {
-      if (error.response) {
-        return {
-          success: false,
-          message:
-            error.response.data?.message || "Error al buscar el paciente.",
-        };
-      }
+      console.error("❌ Error getPatientByDocument:", error);
+
       return {
         success: false,
-        message: "Error de conexión con el servidor.",
+        message:
+          error.response?.data?.message ||
+          "Error al buscar el paciente.",
       };
     }
   }
+
+  // -------------------------------------------------
+  // Obtener información completa del paciente (triage)
+  // -------------------------------------------------
   static async getTriagePatient(triageId: number) {
     try {
-      const response = await axios.post(
-        `${API3_URL}`,
-        { triageId },
-        { headers: { "Content-Type": "application/json" } }
+      const response = await api.post(
+        `/TriageResult/getTriagePatient`,
+        { triageId }
       );
+
       return response.data;
     } catch (error: any) {
-      if (error.response) {
-        return {
-          success: false,
-          message:
-            error.response.data?.message ||
-            "Error al cargar la información del paciente.",
-        };
-      }
+      console.error("❌ Error getTriagePatient:", error);
+
       return {
         success: false,
-        message: "Error de conexión con el servidor.",
+        message:
+          error.response?.data?.message ||
+          "Error al cargar la información del paciente.",
       };
+    }
+  }
+
+  // -------------------------------------------------
+  // Obtener estado del paciente (vista paciente)
+  // -------------------------------------------------
+  static async getPatientStatus(idPatient: number) {
+    try {
+      const response = await api.get(`/PriorityUpdate/status/patient/${idPatient}`);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error getPatientStatus:", error);
+      throw new Error("No se pudo obtener el estado del paciente");
     }
   }
 }
