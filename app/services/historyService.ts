@@ -1,14 +1,12 @@
 // app/services/historyService.ts
-import axios from "axios";
+import api from "./api";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://localhost:7233/api/patients";
+// Base URL usando api (ya tiene /api como baseURL)
+const API_URL = "/patients";
 
 const HistoryService = {
   /**
-   * Obtiene historial paginado.
-   * from/to opcionales
+   * Obtener historial paginado
    */
   async getPatientHistory(
     patientId: number,
@@ -17,63 +15,40 @@ const HistoryService = {
     page: number = 1,
     limit: number = 20
   ) {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-    const params: any = {};
+    const params: any = { page, limit };
     if (from) params.from = from;
     if (to) params.to = to;
-    params.page = page;
-    params.limit = limit;
 
-    const res = await axios.get(`${API_URL}/${patientId}/HistoryReport`, {
+    const res = await api.get(`${API_URL}/${patientId}/HistoryReport`, {
       params,
-      headers: {
-        Authorization: token ? `Bearer ${token}` : "",
-      },
     });
 
     return res.data;
   },
 
   /**
-   * Obtiene una consulta por ID desde tu backend
+   * Obtener una consulta específica del historial
    */
   async getConsultationById(patientId: number, consultaId: number) {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-    const res = await axios.get(
-      `${API_URL}/${patientId}/HistoryReport/${consultaId}`,
-      {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-      }
+    const res = await api.get(
+      `${API_URL}/${patientId}/HistoryReport/${consultaId}`
     );
-
     return res.data;
   },
 
   /**
-   * Descarga PDF del historial
+   * Descargar PDF del historial
    */
   async downloadHistoryPdf(patientId: number, from?: string, to?: string) {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
     const params: any = {};
     if (from) params.from = from;
     if (to) params.to = to;
 
-    const res = await axios.get(
+    const res = await api.get(
       `${API_URL}/${patientId}/HistoryReport/pdf/download`,
       {
         params,
         responseType: "blob",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
       }
     );
 
