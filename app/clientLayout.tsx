@@ -21,7 +21,7 @@ export default function ClientLayout({
   const [isClient, setIsClient] = useState(false);
   const isLoginPage = pathname === "/" || pathname === "/login" || pathname === "/not-authorized";
 
-  // 🔥 Mapeo de rutas por rol (SIN CAMBIAR NOMBRES)
+  //  Mapeo de rutas por rol (SIN CAMBIAR NOMBRES)
   const routesByRole: Record<Rol, string[]> = {
     Administrador: ["/administrator"],
     Enfermero: ["/nurse"],
@@ -34,14 +34,14 @@ export default function ClientLayout({
 
     const user = getUser();
 
-    // ⛔ No autenticado → redirigir al login
+    //  No autenticado → redirigir al login
     if (!user && !isLoginPage) {
       setLoading(true);
       router.replace("/");
       return;
     }
 
-    // 🔥 Si hay usuario
+    //  Si hay usuario
     if (user) {
       const userRole = user.roleName as Rol;
       setRol(userRole);
@@ -52,7 +52,7 @@ export default function ClientLayout({
         pathname.startsWith(prefix)
       );
 
-      // ⛔ Si la ruta NO corresponde al rol → bloquear
+      //  Si la ruta NO corresponde al rol → bloquear
       if (!isAllowed && !isLoginPage) {
         router.replace("/not-authorized");
         return;
