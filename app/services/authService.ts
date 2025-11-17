@@ -2,18 +2,23 @@ import axios from "axios";
 
 const API_URL = "https://localhost:7233/api";
 
+const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true, // 🔥 Muy importante para HttpOnly
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 export default class AuthService {
   static async login(email: string, password: string) {
     try {
-      const response = await axios.post(
-        `${API_URL}/Autentication/login`,
-        { email, password },
-        {
-          withCredentials: true, 
-        }
-      );
+      const response = await api.post("/Autentication/login", {
+        email,
+        password,
+      });
 
-      return response.data; 
+      return response.data;
     } catch (error: any) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -35,13 +40,7 @@ export default class AuthService {
 
   static async logout() {
     try {
-      await axios.post(
-        `${API_URL}/Autentication/logout`,
-        {},
-        {
-          withCredentials: true, 
-        }
-      );
+      await api.post("/Autentication/logout", {});
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }

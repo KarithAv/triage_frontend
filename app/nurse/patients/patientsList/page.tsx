@@ -155,10 +155,15 @@ export default function PatientsList() {
         {/* 🔹 Filtros y opciones */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-5 gap-3">
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <label className="text-sm font-semibold whitespace-nowrap">
+            <label
+              htmlFor="colorFilter"
+              className="text-sm font-semibold whitespace-nowrap"
+            >
               Filtrar por:
             </label>
+
             <select
+              id="colorFilter"
               value={selectedColor}
               onChange={(e) => setSelectedColor(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-auto focus:ring-2 focus:ring-purple-400 outline-none"
