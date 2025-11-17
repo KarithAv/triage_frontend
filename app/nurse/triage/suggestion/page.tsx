@@ -11,7 +11,8 @@ export default function SugerenciaIA() {
   const searchParams = useSearchParams();
   const idTriage = Number(searchParams.get("idTriage")); // obtener id del triage por query
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [loadingInicial, setLoadingInicial] = useState(true);
+  const [loadingConfirmar, setLoadingConfirmar] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"info" | "error" | "success">(
     "info"
@@ -26,7 +27,7 @@ export default function SugerenciaIA() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
+        setLoadingInicial(true);
 
         //Obtener prioridades
         const prioridadesData = await TriageService.getAllPriorities();
@@ -50,7 +51,7 @@ export default function SugerenciaIA() {
         setAlertType("error");
         setAlertMessage("Error al cargar los datos de la sugerencia.");
       } finally {
-        setLoading(false);
+        setLoadingInicial(false);
       }
     };
 
@@ -58,11 +59,16 @@ export default function SugerenciaIA() {
   }, [idTriage]);
 
   const handleConfirmar = async () => {
-    if (prioridadSeleccionada === null) {
-      setAlertType("error");
-      setAlertMessage("Debe seleccionar una prioridad antes de confirmar.");
-      return;
-    }
+    setLoadingConfirmar(true);
+
+   if (prioridadSeleccionada === null) {
+    setAlertType("error");
+    setAlertMessage("Debe seleccionar una prioridad antes de confirmar.");
+    setTimeout(() => setAlertMessage(""), 2000);
+    setLoadingConfirmar(false);
+  return;
+}
+
     try {
       const nurseId = getUserId();
       const response = await TriageService.registerTriageResult({
@@ -98,10 +104,12 @@ export default function SugerenciaIA() {
       console.error(error);
       setAlertType("error");
       setAlertMessage("Error al conectar con el servidor.");
+    }finally {
+    setLoadingConfirmar(false);
     }
   };
 
-  if (loading) {
+  if (loadingInicial) {
     return (
       <main className="flex items-center justify-center min-h-screen bg-gray-50">
         <p className="text-gray-600">Cargando datos...</p>
@@ -184,10 +192,12 @@ export default function SugerenciaIA() {
 
         <div className="flex justify-center mt-8">
           <Button
+            type= "button"
             onClick={handleConfirmar}
+            disabled={loadingConfirmar}
             className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold"
           >
-            Confirmar Registro
+            {loadingConfirmar ? "Confirmando..." : "Confirmar Registro"}
           </Button>
         </div>
       </div>
