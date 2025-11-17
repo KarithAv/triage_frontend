@@ -21,23 +21,19 @@ export default function LoginPage() {
     try {
       const data = await AuthService.login(email, password);
 
-      // Guardar solo lo permitido
       Cookies.set("user", JSON.stringify(data.user), {
         path: "/",
         secure: true,
         sameSite: "none",
       });
 
-      // Obtener rol real según BD
       const roleId = data.user.roleIdUs;
 
-      // Redirecciones correctas
-      if (roleId === 1) router.push("/administrator"); 
+      if (roleId === 1) router.push("/administrator");
       else if (roleId === 2) router.push("/nurse");
       else if (roleId === 3) router.push("/patient");
       else if (roleId === 4) router.push("/doctor");
       else router.push("/");
-
     } catch (err: any) {
       setError(err.message || "Error al iniciar sesión");
     } finally {
@@ -47,11 +43,10 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen w-full overflow-hidden">
-      {/* Imagen a la izquierda */}
+      {/* Imagen */}
       <div className="md:w-1/2 w-full bg-[#48B294] flex flex-col justify-center items-center relative">
         <div className="absolute top-[-5rem] left-[-5rem] w-60 h-60 bg-[#3C9C83] rounded-full opacity-60" />
         <div className="absolute bottom-[-5rem] right-[-5rem] w-72 h-72 bg-[#3C9C83] rounded-full opacity-60" />
-
         <img
           src="/images/illustration.png"
           alt="Ilustración médica"
@@ -59,7 +54,7 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Formulario a la derecha */}
+      {/* Formulario */}
       <div className="md:w-1/2 w-full flex justify-center items-center bg-[#EFFFFA] p-6">
         <div className="bg-white shadow-2xl rounded-2xl p-10 w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
@@ -72,12 +67,18 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email */}
             <div>
-              <label className="block text-sm font-semibold mb-1">
+              <label
+                htmlFor="emailInput"
+                className="block text-sm font-semibold mb-1"
+              >
                 Correo electrónico
               </label>
+
               <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-[#7D4AF9]">
                 <input
+                  id="emailInput"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -89,12 +90,18 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-sm font-semibold mb-1">
+              <label
+                htmlFor="passwordInput"
+                className="block text-sm font-semibold mb-1"
+              >
                 Contraseña
               </label>
+
               <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 focus-within:ring-2 focus-within:ring-[#7D4AF9]">
                 <input
+                  id="passwordInput"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -110,6 +117,7 @@ export default function LoginPage() {
               <p className="text-red-500 text-sm text-center">{error}</p>
             )}
 
+            {/* Botón */}
             <button
               type="submit"
               disabled={loading}
@@ -119,7 +127,8 @@ export default function LoginPage() {
             </button>
 
             <p className="text-center text-xs text-gray-500 mt-3">
-              *En el primer inicio de sesión, la contraseña será igual a la cédula
+              *En el primer inicio de sesión, la contraseña será igual a la
+              cédula
             </p>
           </form>
         </div>

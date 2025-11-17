@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import ClientLayout from "./clientLayout";
-import HideUrlBar from "./HideUrlBar";         
+import ClientLayout from "./clientLayout";        
 import "./globals.css";
 
 const poppins = Poppins({

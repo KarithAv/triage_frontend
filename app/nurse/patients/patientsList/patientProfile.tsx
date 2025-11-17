@@ -150,10 +150,15 @@ export default function PatientProfile({
 
           {/* Select de nueva prioridad */}
           <div className="mb-4">
-            <label className="space-y-2 text-gray-700">
+            <label
+              htmlFor="nuevaPrioridadSelect"
+              className="space-y-2 text-gray-700"
+            >
               Registrar nueva prioridad:
             </label>
+
             <select
+              id="nuevaPrioridadSelect"
               className="w-full border border-gray-300 rounded-md p-2"
               value={prioridadSeleccionada ?? ""}
               onChange={(e) => setPrioridadSeleccionada(Number(e.target.value))}

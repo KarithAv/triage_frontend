@@ -34,7 +34,10 @@ export default function PatientHistoryPage() {
   const [from, setFrom] = useState<string>("2025-10-01");
   const [to, setTo] = useState<string>("2025-11-30");
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
+  const [alert, setAlert] = useState<{
+    type: "success" | "error" | "info";
+    message: string;
+  } | null>(null);
 
   const userId = Number(getUserId());
 
@@ -58,13 +61,22 @@ export default function PatientHistoryPage() {
     setAlert(null);
     try {
       if (!userId) throw new Error("No se encontró sesión activa");
-      const resp = await HistoryService.getPatientHistory(userId, from || undefined, to || undefined, p, limit);
+      const resp = await HistoryService.getPatientHistory(
+        userId,
+        from || undefined,
+        to || undefined,
+        p,
+        limit
+      );
       setRows(resp.data || []);
       setTotal(resp.meta?.total || 0);
       setPage(resp.meta?.page || p);
     } catch (err: any) {
       console.error("Error fetching history", err);
-      setAlert({ type: "error", message: err?.message || "Error al obtener historial" });
+      setAlert({
+        type: "error",
+        message: err?.message || "Error al obtener historial",
+      });
     } finally {
       setLoading(false);
     }
@@ -87,7 +99,11 @@ export default function PatientHistoryPage() {
   const handleDownloadPdf = async () => {
     try {
       setLoading(true);
-      const blob = await HistoryService.downloadHistoryPdf(userId, from || undefined, to || undefined);
+      const blob = await HistoryService.downloadHistoryPdf(
+        userId,
+        from || undefined,
+        to || undefined
+      );
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -111,18 +127,34 @@ export default function PatientHistoryPage() {
           <div className="flex items-center gap-3">
             <FileText className="w-6 h-6 text-gray-700" />
             <div>
-              <h1 className="text-2xl font-extrabold text-gray-800">Historial de Atención</h1>
-              <p className="text-sm text-gray-500">Consulta tus atenciones pasadas y descarga tu historial en PDF</p>
+              <h1 className="text-2xl font-extrabold text-gray-800">
+                Historial de Atención
+              </h1>
+              <p className="text-sm text-gray-500">
+                Consulta tus atenciones pasadas y descarga tu historial en PDF
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <Button className="px-4 py-2 rounded bg-gray-100 text-gray-800 hover:bg-gray-200" onClick={() => { setFrom(""); setTo(""); fetchHistory(1); }}>
+            <Button
+              className="px-4 py-2 rounded bg-gray-100 text-gray-800 hover:bg-gray-200"
+              onClick={() => {
+                setFrom("");
+                setTo("");
+                fetchHistory(1);
+              }}
+            >
               Limpiar
             </Button>
 
-            <Button className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center" onClick={handleDownloadPdf} disabled={loading}>
-              <Download className="w-4 h-4 mr-2" /> {loading ? "Generando..." : "Descargar PDF"}
+            <Button
+              className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center"
+              onClick={handleDownloadPdf}
+              disabled={loading}
+            >
+              <Download className="w-4 h-4 mr-2" />{" "}
+              {loading ? "Generando..." : "Descargar PDF"}
             </Button>
           </div>
         </div>
@@ -132,31 +164,77 @@ export default function PatientHistoryPage() {
         <Card className="col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-gray-600" /> Filtrar por fecha
+              <CalendarDays className="w-5 h-5 text-gray-600" /> Filtrar por
+              fecha
             </h2>
 
-            <div className="text-sm text-gray-500">Registros: <span className="font-semibold text-gray-700">{total}</span></div>
+            <div className="text-sm text-gray-500">
+              Registros:{" "}
+              <span className="font-semibold text-gray-700">{total}</span>
+            </div>
           </div>
 
           <div className="flex gap-3 items-end flex-wrap">
             <div>
-              <label className="block text-xs text-gray-600">Desde</label>
-              <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="border px-3 py-2 rounded-md focus:ring-2 focus:ring-purple-500" />
+              <label
+                htmlFor="fechaDesdeInput"
+                className="block text-xs text-gray-600"
+              >
+                Desde
+              </label>
+              <input
+                id="fechaDesdeInput"
+                type="date"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                className="border px-3 py-2 rounded-md focus:ring-2 focus:ring-purple-500"
+              />
             </div>
 
             <div>
-              <label className="block text-xs text-gray-600">Hasta</label>
-              <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="border px-3 py-2 rounded-md focus:ring-2 focus:ring-purple-500" />
+              <label
+                htmlFor="fechaHastaInput"
+                className="block text-xs text-gray-600"
+              >
+                Hasta
+              </label>
+              <input
+                id="fechaHastaInput"
+                type="date"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                className="border px-3 py-2 rounded-md focus:ring-2 focus:ring-purple-500"
+              />
             </div>
 
             <div className="ml-auto flex gap-2">
-              <Button className="px-3 py-2 rounded border" onClick={() => { setFrom(""); setTo(""); fetchHistory(1); }}>Limpiar</Button>
-              <Button className="px-3 py-2 rounded bg-purple-600 text-white" onClick={() => fetchHistory(1)}>Aplicar</Button>
+              <Button
+                className="px-3 py-2 rounded border"
+                onClick={() => {
+                  setFrom("");
+                  setTo("");
+                  fetchHistory(1);
+                }}
+              >
+                Limpiar
+              </Button>
+              <Button
+                className="px-3 py-2 rounded bg-purple-600 text-white"
+                onClick={() => fetchHistory(1)}
+              >
+                Aplicar
+              </Button>
             </div>
           </div>
 
           <div className="mt-6">
-            {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
+            {alert && (
+              <Alert
+                type={alert.type}
+                message={alert.message}
+                onClose={() => setAlert(null)}
+              />
+            )}
 
             <div className="bg-white rounded shadow overflow-hidden">
               <table className="w-full text-sm">
@@ -174,14 +252,23 @@ export default function PatientHistoryPage() {
                 <tbody>
                   {rows.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="p-6 text-center text-gray-500">No hay registros.</td>
+                      <td colSpan={6} className="p-6 text-center text-gray-500">
+                        No hay registros.
+                      </td>
                     </tr>
                   )}
 
                   {rows.map((r) => (
-                    <tr key={r.consultationId} className="border-t hover:bg-gray-50">
-                      <td className="p-3">{formatDate(r.fechaInicioConsulta)}</td>
-                      <td className="p-3">{r.doctorFullName ?? `#${r.doctorId}`}</td>
+                    <tr
+                      key={r.consultationId}
+                      className="border-t hover:bg-gray-50"
+                    >
+                      <td className="p-3">
+                        {formatDate(r.fechaInicioConsulta)}
+                      </td>
+                      <td className="p-3">
+                        {r.doctorFullName ?? `#${r.doctorId}`}
+                      </td>
                       <td className="p-3">{priorityBadgeFor(r.estadoId)}</td>
                       <td className="p-3">{r.diagnosisName ?? "—"}</td>
                       <td className="p-3">{r.treatmentDescription ?? "—"}</td>
@@ -189,7 +276,11 @@ export default function PatientHistoryPage() {
                       <td className="p-3">
                         <Button
                           className="px-2 py-1 border text-sm"
-                          onClick={() => router.push(`/patient/history/detail?consultation=${r.consultationId}&patientId=${userId}`)}
+                          onClick={() =>
+                            router.push(
+                              `/patient/history/detail?consultation=${r.consultationId}&patientId=${userId}`
+                            )
+                          }
                         >
                           Ver
                         </Button>
@@ -201,11 +292,26 @@ export default function PatientHistoryPage() {
             </div>
 
             <div className="mt-4 flex items-center justify-between">
-              <div className="text-sm text-gray-600">Mostrando {(page - 1) * limit + 1} - {Math.min(page * limit, total)} de {total}</div>
+              <div className="text-sm text-gray-600">
+                Mostrando {(page - 1) * limit + 1} -{" "}
+                {Math.min(page * limit, total)} de {total}
+              </div>
 
               <div className="flex gap-2">
-                <Button className="px-3 py-1 border rounded" onClick={() => fetchHistory(Math.max(1, page - 1))} disabled={page <= 1}>Anterior</Button>
-                <Button className="px-3 py-1 border rounded" onClick={() => fetchHistory(page + 1)} disabled={page * limit >= total}>Siguiente</Button>
+                <Button
+                  className="px-3 py-1 border rounded"
+                  onClick={() => fetchHistory(Math.max(1, page - 1))}
+                  disabled={page <= 1}
+                >
+                  Anterior
+                </Button>
+                <Button
+                  className="px-3 py-1 border rounded"
+                  onClick={() => fetchHistory(page + 1)}
+                  disabled={page * limit >= total}
+                >
+                  Siguiente
+                </Button>
               </div>
             </div>
           </div>
@@ -213,7 +319,9 @@ export default function PatientHistoryPage() {
 
         <div>
           <Card>
-            <h3 className="text-lg font-bold text-gray-800 mb-3">Resumen rápido</h3>
+            <h3 className="text-lg font-bold text-gray-800 mb-3">
+              Resumen rápido
+            </h3>
 
             <div className="space-y-3 text-sm text-gray-700">
               <div className="flex items-center justify-between">
@@ -223,16 +331,19 @@ export default function PatientHistoryPage() {
 
               <div className="flex items-center justify-between">
                 <span>Consultas finalizadas</span>
-                <strong>{rows.filter(r => r.estadoId === 2).length}</strong>
+                <strong>{rows.filter((r) => r.estadoId === 2).length}</strong>
               </div>
 
               <div className="flex items-center justify-between">
                 <span>Consultas en espera</span>
-                <strong>{rows.filter(r => r.estadoId !== 2).length}</strong>
+                <strong>{rows.filter((r) => r.estadoId !== 2).length}</strong>
               </div>
 
               <div className="pt-2">
-                <Button className="w-full px-3 py-2 bg-purple-600 text-white" onClick={() => fetchHistory(1)}>
+                <Button
+                  className="w-full px-3 py-2 bg-purple-600 text-white"
+                  onClick={() => fetchHistory(1)}
+                >
                   <ArrowLeftRight className="w-4 h-4 mr-2" /> Actualizar
                 </Button>
               </div>

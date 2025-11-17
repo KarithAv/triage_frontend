@@ -31,9 +31,9 @@ export default function DashboardFilters({
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center mb-5 gap-3 flex-wrap">
       <div className="flex items-center gap-2 w-full sm:w-auto">
-        <label className="text-sm font-semibold whitespace-nowrap">
+        <span className="text-sm font-semibold whitespace-nowrap">
           Filtrar por:
-        </label>
+        </span>
       </div>
       <div className="flex flex-wrap gap-3 justify-center sm:justify-end w-full">
         {/* Contenedor de Fecha de Inicio */}
