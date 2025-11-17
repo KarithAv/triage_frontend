@@ -17,50 +17,68 @@ export default function ConsultationDetailPage() {
   useEffect(() => {
     if (!consultaId) return;
 
-    const fetch = async () => {
+    const fetchData = async () => {
       try {
-        // preferimos patientId del query si viene; si no, tomamos userId desde localStorage (token)
-        const storedUser = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
-        const userId = patientIdParam ? Number(patientIdParam) : (storedUser ? Number(storedUser) : 0);
+        setLoading(true);
 
-        if (!userId || isNaN(userId)) {
-          console.warn("No se encontró patientId válido en query ni en localStorage");
+        // preferir globalThis en lugar de window
+        const storedUser = globalThis?.localStorage?.getItem("userId") ?? null;
+
+        // Resolver ID sin ternarios anidados ni asignaciones redundantes
+        let resolvedId: number | null = null;
+
+        if (patientIdParam) {
+          resolvedId = Number(patientIdParam);
+        } else if (storedUser) {
+          resolvedId = Number(storedUser);
+        }
+
+        if (resolvedId === null || Number.isNaN(resolvedId)) {
+          console.warn("No se encontró patientId válido en query ni localStorage");
           setData(null);
           return;
         }
 
-        const resp = await HistoryService.getConsultationById(userId, Number(consultaId));
-        // el servicio devuelve .data o ya devuelve el dto, según tu implementación; aquí asumimos que res.data es el DTO
+        const resp = await HistoryService.getConsultationById(
+          resolvedId,
+          Number(consultaId)
+        );
+
         const dto = resp?.data ?? resp;
 
-        // Normalizar medicationIds/examIds: pueden venir como "1,2,3" o como null o como ya array
         if (dto) {
-          if (dto.medicationIds && typeof dto.medicationIds === "string") {
-            dto.medicationIds = dto.medicationIds.split(",").map((s: string) => s.trim()).filter((x: string) => x);
+          if (typeof dto.medicationIds === "string") {
+            dto.medicationIds = dto.medicationIds
+              .split(",")
+              .map((s: string) => s.trim())
+              .filter(Boolean);   // ✔ reemplazo de arrow → Boolean
           }
-          if (dto.examIds && typeof dto.examIds === "string") {
-            dto.examIds = dto.examIds.split(",").map((s: string) => s.trim()).filter((x: string) => x);
+
+          if (typeof dto.examIds === "string") {
+            dto.examIds = dto.examIds
+              .split(",")
+              .map((s: string) => s.trim())
+              .filter(Boolean);   // ✔ reemplazo de arrow → Boolean
           }
         }
 
         setData(dto ?? null);
-      } catch (err) {
-        console.error("Error cargando detalle de consulta:", err);
+      } catch (error) {
+        console.error("Error cargando detalle de consulta:", error);
         setData(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchData();
   }, [consultaId, patientIdParam]);
 
   if (!consultaId) return <p className="p-4 text-gray-600">No se envió consultaId</p>;
   if (loading) return <p className="p-4 text-gray-600">Cargando detalle...</p>;
   if (!data) return <p className="p-4 text-gray-600">No se encontró información de la consulta</p>;
 
-  const fmt = (iso?: string | null) => {
+  const format = (iso?: string | null) => {
     if (!iso) return "—";
     try {
       return new Date(iso).toLocaleString();
@@ -72,34 +90,78 @@ export default function ConsultationDetailPage() {
   return (
     <div className="p-6">
       <Card>
-        <h1 className="text-2xl font-bold mb-4">Detalle de Consulta #{consultaId}</h1>
+        <h1 className="text-2xl font-bold mb-4">
+          Detalle de Consulta #{consultaId}
+        </h1>
 
         <div className="space-y-3 text-gray-700">
-          <p><b>Fecha inicio:</b> {fmt(data.fechaInicioConsulta)}</p>
-          <p><b>Fecha fin:</b> {data.fechaFinConsulta ? fmt(data.fechaFinConsulta) : "—"}</p>
-          <p><b>Doctor:</b> {data.doctorFullName ?? `#${data.doctorId ?? "—"}`}</p>
-          <p><b>Diagnóstico:</b> {data.diagnosisName ?? "—"}</p>
-          <p><b>Observación:</b> {data.diagnosisObservation ?? "—"}</p>
-          <p><b>Tratamiento:</b> {data.treatmentDescription ?? "—"}</p>
+          <Detail label="Fecha inicio" value={format(data.fechaInicioConsulta)} />
+          <Detail label="Fecha fin" value={format(data.fechaFinConsulta)} />
+          <Detail
+            label="Doctor"
+            value={data.doctorFullName ?? `#${data.doctorId ?? "—"}`}
+          />
+          <Detail label="Diagnóstico" value={data.diagnosisName ?? "—"} />
+          <Detail label="Observación" value={data.diagnosisObservation ?? "—"} />
+          <Detail label="Tratamiento" value={data.treatmentDescription ?? "—"} />
 
           {Array.isArray(data.medicationIds) && data.medicationIds.length > 0 && (
-            <p><b>Medicamentos:</b> {data.medicationIds.join(", ")}</p>
-          )}
-          {Array.isArray(data.examIds) && data.examIds.length > 0 && (
-            <p><b>Exámenes:</b> {data.examIds.join(", ")}</p>
+            <Detail label="Medicamentos" value={data.medicationIds.join(", ")} />
           )}
 
-          {/* Si tu DTO trae los nombres en lugar de IDs, muéstralos. Si sólo trae IDs, luego puedes resolverlos en otro endpoint */}
-          {data.medicationNames && <p><b>Medicamentos (nombres):</b> {Array.isArray(data.medicationNames) ? data.medicationNames.join(", ") : data.medicationNames}</p>}
-          {data.examNames && <p><b>Exámenes (nombres):</b> {Array.isArray(data.examNames) ? data.examNames.join(", ") : data.examNames}</p>}
+          {Array.isArray(data.examIds) && data.examIds.length > 0 && (
+            <Detail label="Exámenes" value={data.examIds.join(", ")} />
+          )}
+
+          {data.medicationNames && (
+            <Detail
+              label="Medicamentos (nombres)"
+              value={
+                Array.isArray(data.medicationNames)
+                  ? data.medicationNames.join(", ")
+                  : data.medicationNames
+              }
+            />
+          )}
+
+          {data.examNames && (
+            <Detail
+              label="Exámenes (nombres)"
+              value={
+                Array.isArray(data.examNames)
+                  ? data.examNames.join(", ")
+                  : data.examNames
+              }
+            />
+          )}
         </div>
 
         <div className="mt-6 flex gap-2">
-          <Button className="px-4 py-2 border" onClick={() => window.history.back()}>
+          <Button
+            className="px-4 py-2 border"
+            onClick={() => globalThis?.history?.back()}
+          >
             Volver
           </Button>
         </div>
       </Card>
     </div>
+  );
+}
+
+/* =============================
+    COMPONENTE DETAIL (READONLY)
+============================= */
+
+interface DetailProps {
+  readonly label: string;
+  readonly value: string;
+}
+
+function Detail({ label, value }: DetailProps) {
+  return (
+    <p>
+      <b>{label}:</b> {value}
+    </p>
   );
 }

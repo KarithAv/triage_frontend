@@ -6,7 +6,6 @@ import { Button } from "@/components/button";
 import Alert from "@/components/alert";
 import PatientService from "@/app/services/patientService";
 import TriageService from "@/app/services/triageService";
-import { getUser, getUserId } from "@/app/utilities/session";
 
 export default function SignosVitalesPanel() {
   const [document, setDocument] = useState("");
@@ -25,6 +24,7 @@ export default function SignosVitalesPanel() {
     "info"
   );
   const [alertMessage, setAlertMessage] = useState("");
+
   const router = useRouter();
 
   const handleSearch = async () => {
@@ -34,15 +34,15 @@ export default function SignosVitalesPanel() {
 
     const result = await PatientService.getPatientByDocument(document);
 
-    if (result.success === false) {
-      setAlertType("error");
-      setAlertMessage(result.message);
-    } else {
+    if (result.success) {
       setPatient(result.data);
       setFirstName(result.data.nombre);
       setLastName(result.data.apellido);
       setId(result.data.id);
       setAge(result.data.edad);
+    } else {
+      setAlertType("error");
+      setAlertMessage(result.message);
     }
   };
 
@@ -68,6 +68,7 @@ export default function SignosVitalesPanel() {
       setAlertMessage("Primero debe consultar un paciente válido");
       return;
     }
+
     if (
       !symptoms.trim() ||
       !bloodPressure.trim() ||
@@ -92,17 +93,10 @@ export default function SignosVitalesPanel() {
           temperature: Number(temperature),
           oxygenSaturation: Number(oxygenSaturation),
         },
-        symptoms: symptoms,
+        symptoms,
         idPatient: Number(id),
         patientAge: Number(age),
       };
-
-      const nurseId = getUserId();
-      
-      if(!nurseId){
-        setAlertType("success");
-        setAlertMessage("No hay enfermero logueado");
-      }
 
       const response = await TriageService.registerTriage(data);
 
@@ -114,11 +108,9 @@ export default function SignosVitalesPanel() {
         }, 1200);
       } else {
         setAlertType("error");
-        setAlertMessage(
-          `${response.message || "Error al registrar los datos"}`
-        );
+        setAlertMessage(response.message || "Error al registrar los datos");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       alert("Error al conectar con el servidor");
     }
@@ -133,11 +125,12 @@ export default function SignosVitalesPanel() {
 
         {/* Buscar paciente */}
         <div className="mb-4">
-          <label className="block font-semibold mb-2">
+          <label htmlFor="buscarDocumento" className="block font-semibold mb-2">
             Buscar Paciente por Cédula
           </label>
           <div className="flex gap-3">
             <input
+              id="buscarDocumento"
               type="text"
               value={document}
               onChange={(e) => setDocument(e.target.value)}
@@ -182,11 +175,14 @@ export default function SignosVitalesPanel() {
 
         {/* Síntomas */}
         <div className="mb-4">
-          <label className="block font-semibold mb-2">Síntomas</label>
+          <label htmlFor="symptomsInput" className="block font-semibold mb-2">
+            Síntomas
+          </label>
           <textarea
+            id="symptomsInput"
             value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
-            placeholder="Describa los síntomas principales (ej: dolor abdominal, mareo...)"
+            placeholder="Describa los síntomas principales..."
             className="border rounded-lg w-full p-3 resize-none"
             rows={3}
           ></textarea>
@@ -195,10 +191,14 @@ export default function SignosVitalesPanel() {
         {/* Signos vitales */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block font-semibold mb-1">
+            <label
+              htmlFor="bloodPressureInput"
+              className="block font-semibold mb-1"
+            >
               Presión Arterial (ej: 120/80)
             </label>
             <input
+              id="bloodPressureInput"
               type="text"
               value={bloodPressure}
               onChange={(e) => setBloodPressure(e.target.value)}
@@ -208,10 +208,14 @@ export default function SignosVitalesPanel() {
           </div>
 
           <div>
-            <label className="block font-semibold mb-1">
+            <label
+              htmlFor="heartRateInput"
+              className="block font-semibold mb-1"
+            >
               Frecuencia Cardíaca (lpm)
             </label>
             <input
+              id="heartRateInput"
               type="number"
               value={heartRate}
               onChange={(e) => setHeartRate(e.target.value)}
@@ -221,10 +225,11 @@ export default function SignosVitalesPanel() {
           </div>
 
           <div>
-            <label className="block font-semibold mb-1">
+            <label htmlFor="respRateInput" className="block font-semibold mb-1">
               Frecuencia Respiratoria (rpm)
             </label>
             <input
+              id="respRateInput"
               type="number"
               value={respiratoryRate}
               onChange={(e) => setRespiratoryRate(e.target.value)}
@@ -234,8 +239,14 @@ export default function SignosVitalesPanel() {
           </div>
 
           <div>
-            <label className="block font-semibold mb-1">Temperatura (°C)</label>
+            <label
+              htmlFor="temperatureInput"
+              className="block font-semibold mb-1"
+            >
+              Temperatura (°C)
+            </label>
             <input
+              id="temperatureInput"
               type="number"
               value={temperature}
               onChange={(e) => setTemperature(e.target.value)}
@@ -245,10 +256,11 @@ export default function SignosVitalesPanel() {
           </div>
 
           <div>
-            <label className="block font-semibold mb-1">
+            <label htmlFor="oxygenInput" className="block font-semibold mb-1">
               Saturación de Oxígeno (%)
             </label>
             <input
+              id="oxygenInput"
               type="number"
               value={oxygenSaturation}
               onChange={(e) => setOxygenSaturation(e.target.value)}

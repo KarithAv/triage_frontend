@@ -166,16 +166,18 @@ export default function SugerenciaIA() {
             const seleccionado = prioridadSeleccionada === p.priorityId;
 
             return (
-              <div
+              <button
                 key={p.priorityId}
+                type="button"
                 onClick={() => setPrioridadSeleccionada(p.priorityId)}
-                className={`cursor-pointer border-2 rounded-lg px-4 py-3 transition-all text-center font-medium ${
-                  colores[p.priorityName] || "bg-gray-100"
-                } ${seleccionado ? "ring-4 ring-offset-1 ring-purple-500 scale-105" : "hover:scale-105"}`}
+                className={`w-full cursor-pointer border-2 rounded-lg px-4 py-3 transition-all text-center font-medium
+    ${colores[p.priorityName] || "bg-gray-100"}
+    ${seleccionado ? "ring-4 ring-offset-1 ring-purple-500 scale-105" : "hover:scale-105"}
+  `}
               >
                 <p className="font-semibold">{p.priorityName}</p>
                 <p className="text-sm">{p.priorityDescription}</p>
-              </div>
+              </button>
             );
           })}
         </div>

@@ -2,5 +2,5 @@ projectKey=triage_frontend
 serverUrl=http://localhost:9000
 serverVersion=25.11.0.114957
 dashboardUrl=http://localhost:9000/dashboard?id=triage_frontend
-ceTaskId=7600828c-f0cd-40a7-9309-025a73d4b6a5
-ceTaskUrl=http://localhost:9000/api/ce/task?id=7600828c-f0cd-40a7-9309-025a73d4b6a5
+ceTaskId=357743f6-e188-4b5d-a2e5-a67697224b86
+ceTaskUrl=http://localhost:9000/api/ce/task?id=357743f6-e188-4b5d-a2e5-a67697224b86

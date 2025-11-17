@@ -275,12 +275,17 @@ export default function DiagnosysPage() {
           Seleccionar Diagnóstico Final
         </h2>
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Diagnóstico:</label>
+          <label htmlFor="diagnosisSelect" className="block text-gray-700 mb-2">
+            Diagnóstico:
+          </label>
+
           <select
+            id="diagnosisSelect"
             className="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300"
             value={selectedDiagnosis}
             onChange={(e) => setSelectedDiagnosis(e.target.value)}
           >
+
             <option value="">Seleccione un diagnóstico</option>
             {diagnoses.map((d) => (
               <option key={d.diagnosisId} value={d.diagnosisId}>
