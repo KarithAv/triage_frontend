@@ -19,52 +19,73 @@ export default function ClientLayout({
   const [rol, setRol] = useState<Rol | null>(null);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
-  const isLoginPage = pathname === "/" || pathname === "/login";
+  const isLoginPage = pathname === "/" || pathname === "/login" || pathname === "/not-authorized";
+
+  // 🔥 Mapeo de rutas por rol (SIN CAMBIAR NOMBRES)
+  const routesByRole: Record<Rol, string[]> = {
+    Administrador: ["/administrator"],
+    Enfermero: ["/nurse"],
+    Médico: ["/doctor"],
+    Paciente: ["/patient"],
+  };
 
   useEffect(() => {
     setIsClient(true);
 
     const user = getUser();
 
+    // ⛔ No autenticado → redirigir al login
     if (!user && !isLoginPage) {
       setLoading(true);
-      const timer = setTimeout(() => {
-        router.replace("/");
-      }, 3000);
-      return () => clearTimeout(timer);
+      router.replace("/");
+      return;
     }
 
+    // 🔥 Si hay usuario
     if (user) {
-      setRol(user.roleName);
+      const userRole = user.roleName as Rol;
+      setRol(userRole);
+
+      // Validación global de rutas por rol
+      const allowedPrefixes = routesByRole[userRole] ?? [];
+      const isAllowed = allowedPrefixes.some((prefix) =>
+        pathname.startsWith(prefix)
+      );
+
+      // ⛔ Si la ruta NO corresponde al rol → bloquear
+      if (!isAllowed && !isLoginPage) {
+        router.replace("/not-authorized");
+        return;
+      }
     }
 
     setLoading(false);
   }, [pathname]);
 
-  if (!isClient) {
-    return null;
-  }
+  // Evita errores durante SSR
+  if (!isClient) return null;
 
+  // Cargando mientras se valida
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-purple-50 to-purple-100 text-center animate-fade-in">
         <FaSpinner className="animate-spin text-6xl text-purple-600 mb-6" />
         <h1 className="text-2xl font-bold text-purple-700 mb-2">
-          Acceso no autorizado
+          Validando acceso...
         </h1>
         <p className="text-gray-700 max-w-md">
-          No puedes acceder sin iniciar sesión.
-          <br />
-          Serás redirigido al login automáticamente...
+          Por favor espera un momento.
         </p>
       </div>
     );
   }
 
+  // Login sin sidebar
   if (isLoginPage) {
     return <main className="min-h-screen">{children}</main>;
   }
 
+  // Ruta válida por rol → render normal
   return (
     <div className="flex min-h-screen">
       <Sidebar />

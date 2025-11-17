@@ -24,7 +24,7 @@ export default function SignosVitalesPanel() {
     "info"
   );
   const [alertMessage, setAlertMessage] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSearch = async () => {
@@ -62,6 +62,7 @@ export default function SignosVitalesPanel() {
   const handleSiguiente = async () => {
     setAlertType("info");
     setAlertMessage("");
+    setLoading (true);
 
     if (!id) {
       setAlertType("error");
@@ -280,9 +281,10 @@ export default function SignosVitalesPanel() {
           </Button>
           <Button
             onClick={handleSiguiente}
+            disabled={loading}
             className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-lg"
-          >
-            Siguiente
+            >
+            {loading ? "Registrando..." : "Siguiente"}
           </Button>
         </div>
       </div>
