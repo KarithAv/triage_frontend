@@ -3,25 +3,24 @@
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { usePathname, useRouter } from "next/navigation";
-import { getUser } from "@/app/utilities/session";
+import { getUser, getRoleName } from "@/app/utilities/session";
 import { FaSpinner } from "react-icons/fa";
 
 type Rol = "Administrador" | "Médico" | "Enfermero" | "Paciente";
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
   const [rol, setRol] = useState<Rol | null>(null);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
-  const isLoginPage = pathname === "/" || pathname === "/login" || pathname === "/not-authorized";
 
-  //  Mapeo de rutas por rol (SIN CAMBIAR NOMBRES)
+  const isLoginPage =
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname === "/not-authorized";
+
   const routesByRole: Record<Rol, string[]> = {
     Administrador: ["/administrator"],
     Enfermero: ["/nurse"],
@@ -34,25 +33,24 @@ export default function ClientLayout({
 
     const user = getUser();
 
-    //  No autenticado → redirigir al login
     if (!user && !isLoginPage) {
       setLoading(true);
       router.replace("/");
       return;
     }
 
-    //  Si hay usuario
     if (user) {
-      const userRole = user.roleName as Rol;
-      setRol(userRole);
+      const roleName = getRoleName(); // ← ahora usamos SOLO el ID
+      if (!roleName) {
+        router.replace("/not-authorized");
+        return;
+      }
 
-      // Validación global de rutas por rol
-      const allowedPrefixes = routesByRole[userRole] ?? [];
-      const isAllowed = allowedPrefixes.some((prefix) =>
-        pathname.startsWith(prefix)
-      );
+      setRol(roleName as Rol);
 
-      //  Si la ruta NO corresponde al rol → bloquear
+      const allowedPrefixes = routesByRole[roleName as Rol] ?? [];
+      const isAllowed = allowedPrefixes.some(prefix => pathname.startsWith(prefix));
+
       if (!isAllowed && !isLoginPage) {
         router.replace("/not-authorized");
         return;
@@ -62,10 +60,8 @@ export default function ClientLayout({
     setLoading(false);
   }, [pathname]);
 
-  // Evita errores durante SSR
   if (!isClient) return null;
 
-  // Cargando mientras se valida
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-purple-50 to-purple-100 text-center animate-fade-in">
@@ -73,19 +69,15 @@ export default function ClientLayout({
         <h1 className="text-2xl font-bold text-purple-700 mb-2">
           Validando acceso...
         </h1>
-        <p className="text-gray-700 max-w-md">
-          Por favor espera un momento.
-        </p>
+        <p className="text-gray-700 max-w-md">Por favor espera un momento.</p>
       </div>
     );
   }
 
-  // Login sin sidebar
   if (isLoginPage) {
     return <main className="min-h-screen">{children}</main>;
   }
 
-  // Ruta válida por rol → render normal
   return (
     <div className="flex min-h-screen">
       <Sidebar />
